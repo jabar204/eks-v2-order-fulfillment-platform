@@ -118,7 +118,11 @@ func expireReservations() {
 		var quantity int
 		rows.Scan(&orderID, &productID, &quantity)
 
-		tx, _ := db.Begin()
+		tx, err := db.Begin()
+		if err != nil {
+			log.Printf("expire_reservations begin error: %v", err)
+			continue
+		}
 		tx.Exec("UPDATE products SET reserved = GREATEST(reserved - $1, 0), updated_at = NOW() WHERE id = $2",
 			quantity, productID)
 		tx.Exec("UPDATE reservations SET status = 'expired' WHERE order_id = $1 AND product_id = $2 AND status = 'active'",

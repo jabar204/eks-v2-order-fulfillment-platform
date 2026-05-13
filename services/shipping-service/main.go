@@ -378,7 +378,7 @@ func generateTrackingNumber(carrier string) string {
 	case "ups":
 		prefix = "1Z"
 	}
-	return fmt.Sprintf("%s%d%d", prefix, time.Now().Unix(), rand.Intn(100000))
+	return fmt.Sprintf("%s%d%d", prefix, time.Now().UnixNano(), rand.Intn(100000))
 }
 
 func publishEvent(eventType string, payload map[string]interface{}) {

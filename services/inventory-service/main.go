@@ -234,13 +234,19 @@ func handleReserve(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Reserve stock
-		tx.Exec("UPDATE products SET reserved = reserved + $1, updated_at = NOW() WHERE id = $2",
-			item.Quantity, item.ProductID)
+		if _, err := tx.Exec("UPDATE products SET reserved = reserved + $1, updated_at = NOW() WHERE id = $2",
+			item.Quantity, item.ProductID); err != nil {
+			httpError(w, "reservation update failed", http.StatusInternalServerError)
+			return
+		}
 
-		tx.Exec(
+		if _, err := tx.Exec(
 			"INSERT INTO reservations (order_id, product_id, quantity, status, expires_at) VALUES ($1, $2, $3, 'active', $4)",
 			req.OrderID, item.ProductID, item.Quantity, expiresAt,
-		)
+		); err != nil {
+			httpError(w, "reservation insert failed", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	if err := tx.Commit(); err != nil {

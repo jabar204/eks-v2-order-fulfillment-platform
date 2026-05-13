@@ -227,7 +227,11 @@ func handleRefund(w http.ResponseWriter, r *http.Request) {
 
 	refundID := generatePaymentID()
 
-	tx, _ := db.Begin()
+	tx, err := db.Begin()
+	if err != nil {
+		httpError(w, "transaction failed", http.StatusInternalServerError)
+		return
+	}
 	defer tx.Rollback()
 
 	_, err = tx.Exec(

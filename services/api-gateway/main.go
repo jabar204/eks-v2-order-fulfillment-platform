@@ -160,7 +160,7 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 func handleProxy(w http.ResponseWriter, r *http.Request) {
 	// Rate limiting
 	if redisClient != nil {
-		ip := r.RemoteAddr
+		ip := clientIP(r)
 		key := fmt.Sprintf("rate:%s", ip)
 		count, _ := redisClient.Incr(ctx, key).Result()
 		if count == 1 {
@@ -181,7 +181,9 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Forward user info to downstream services
-		r.Header.Set("X-User-Email", claims["sub"].(string))
+		if sub, ok := claims["sub"].(string); ok {
+			r.Header.Set("X-User-Email", sub)
+		}
 		if role, ok := claims["role"].(string); ok {
 			r.Header.Set("X-User-Role", role)
 		}
@@ -270,6 +272,19 @@ func getEnv(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+func clientIP(r *http.Request) string {
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		if idx := strings.Index(xff, ","); idx >= 0 {
+			return strings.TrimSpace(xff[:idx])
+		}
+		return strings.TrimSpace(xff)
+	}
+	if xrip := r.Header.Get("X-Real-IP"); xrip != "" {
+		return xrip
+	}
+	return r.RemoteAddr
 }
 
 var shutdownOnce sync.Once
