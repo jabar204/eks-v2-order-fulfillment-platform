@@ -43,7 +43,9 @@ func main() {
 	redisURL := os.Getenv("REDIS_URL")
 	if redisURL != "" {
 		opt, err := redis.ParseURL(redisURL)
-		if err == nil {
+		if err != nil {
+			log.Printf("WARNING: invalid REDIS_URL, rate limiting disabled: %v", err)
+		} else {
 			redisClient = redis.NewClient(opt)
 			if _, err := redisClient.Ping(ctx).Result(); err != nil {
 				log.Printf("WARNING: Redis not reachable, rate limiting disabled: %v", err)
@@ -146,7 +148,11 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 		"iat":  time.Now().Unix(),
 	})
 
-	tokenString, _ := token.SignedString(jwtSecret)
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		httpError(w, "failed to generate token", http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

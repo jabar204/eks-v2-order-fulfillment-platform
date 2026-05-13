@@ -240,8 +240,15 @@ func listOrders(w http.ResponseWriter, r *http.Request) {
 	orders := []Order{}
 	for rows.Next() {
 		var o Order
-		rows.Scan(&o.ID, &o.CustomerID, &o.Status, &o.Items, &o.Total, &o.Currency, &o.Notes, &o.CreatedAt, &o.UpdatedAt)
+		if err := rows.Scan(&o.ID, &o.CustomerID, &o.Status, &o.Items, &o.Total, &o.Currency, &o.Notes, &o.CreatedAt, &o.UpdatedAt); err != nil {
+			httpError(w, "scan failed", http.StatusInternalServerError)
+			return
+		}
 		orders = append(orders, o)
+	}
+	if err := rows.Err(); err != nil {
+		httpError(w, "iteration failed", http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

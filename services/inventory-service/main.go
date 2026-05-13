@@ -292,26 +292,48 @@ func handleRelease(w http.ResponseWriter, r *http.Request) {
 		httpError(w, "query failed", http.StatusInternalServerError)
 		return
 	}
-	defer rows.Close()
 
-	released := 0
+	type item struct {
+		productID string
+		quantity  int
+	}
+	var items []item
 	for rows.Next() {
-		var productID string
-		var quantity int
-		rows.Scan(&productID, &quantity)
-
-		tx.Exec("UPDATE products SET reserved = reserved - $1, updated_at = NOW() WHERE id = $2",
-			quantity, productID)
-		released++
+		var it item
+		if err := rows.Scan(&it.productID, &it.quantity); err != nil {
+			rows.Close()
+			httpError(w, "scan failed", http.StatusInternalServerError)
+			return
+		}
+		items = append(items, it)
+	}
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		httpError(w, "iteration failed", http.StatusInternalServerError)
+		return
 	}
 
-	tx.Exec("UPDATE reservations SET status = 'released' WHERE order_id = $1 AND status = 'active'", req.OrderID)
-	tx.Commit()
+	for _, it := range items {
+		if _, err := tx.Exec("UPDATE products SET reserved = reserved - $1, updated_at = NOW() WHERE id = $2",
+			it.quantity, it.productID); err != nil {
+			httpError(w, "release update failed", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if _, err := tx.Exec("UPDATE reservations SET status = 'released' WHERE order_id = $1 AND status = 'active'", req.OrderID); err != nil {
+		httpError(w, "release update failed", http.StatusInternalServerError)
+		return
+	}
+	if err := tx.Commit(); err != nil {
+		httpError(w, "commit failed", http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"order_id": req.OrderID,
-		"released": released,
+		"released": len(items),
 	})
 }
 
