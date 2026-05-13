@@ -33,11 +33,12 @@ Write the Dockerfiles. Write the Terraform. Write the Kubernetes manifests. Writ
 ### Requirements
 
 - EKS (1.33 or above) with managed node groups across 3 AZs
+- Karpenter for node autoscaling. Cluster Autoscaler is fine to compare against, but Karpenter is the default you should be reaching for.
 - Nine Deployments behind a single Ingress with TLS, routed to the right backend
 - PostgreSQL on a StatefulSet with a 20Gi PVC (gp3, encrypted)
 - Redis on a StatefulSet with AOF persistence on a 10Gi PVC (gp3, encrypted)
 - AWS EBS CSI Driver with IRSA, gp3 as the default storage class, a VolumeSnapshotClass configured
-- SQS queue with a dead letter queue (cross-service event bus)
+- SQS queue with a dead letter queue as the event bus. If you would rather run in-cluster Kafka via the Strimzi operator, that is also accepted, but you will need to modify the four event-producing services to use Kafka clients. Pick one path, defend it.
 - ECR repositories, one per service
 - VPC with private subnets. Avoid NAT gateways if you can.
 - Secrets sourced from AWS Secrets Manager via External Secrets or the Secrets Store CSI Driver. Not hardcoded, not in env files.
@@ -111,13 +112,15 @@ Not required for submission. These will set your project apart.
 
 **Observability**. It is 2am. Orders are failing. You are on call. You need to answer four questions fast: which service is the problem, when did it start, what changed, who is affected. If your setup cannot answer those in under 10 minutes without `kubectl exec`, it is not production-ready. kube-prometheus-stack gives you the building blocks. RED metrics for the API layer. Saturation metrics for the data layer. Dashboards grouped by service, not by pod. Alerts that mean something. A way to follow one order across all nine services.
 
-**Service mesh**. Istio or Linkerd. mTLS between every service. Authorization policies that block lateral movement. Traffic shifting for canary releases. Distributed tracing across the order flow.
+**Service mesh**. Istio or Linkerd. mTLS between every service. Authorization policies that block lateral movement. Traffic shifting for canary releases.
+
+**Distributed tracing with OpenTelemetry**. Run an OTel collector. Instrument the Go services (the SDK is small). Send spans to Tempo or Jaeger. Follow a single order across api-gateway, order-service, payment-service, shipping-service and worker. This is the bit that pays you back at 2am.
+
+**Gateway API instead of Ingress**. Traefik supports Gateway API CRDs (GatewayClass, Gateway, HTTPRoute). The Kubernetes community is moving in this direction now that ingress-nginx is gone. Build the platform with Gateway resources instead of `Ingress`.
 
 **Backup and disaster recovery**. Velero for cluster-level backup. EBS snapshots on a schedule. Restore in a fresh cluster and prove the application comes back up with its data intact.
 
-**Strimzi Kafka**. Replace SQS with an in-cluster Kafka cluster managed by Strimzi. You will need to modify the worker plus order-service, payment-service and shipping-service to publish and consume from Kafka topics instead of SQS. Real work, real learning.
-
-**GPU inference**. Add a fraud-detection service on a GPU node group. Wire the order-service to call it before confirming an order. Expensive. Only worth it if you specifically want the MLOps signal on your CV.
+**Chaos drill**. Kill a Postgres pod live during your demo. Watch the StatefulSet bring it back. Watch the application recover. One concrete drill, not a chaos platform.
 
 ---
 
