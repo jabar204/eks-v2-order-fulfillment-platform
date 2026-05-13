@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -8,7 +9,9 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -31,10 +34,12 @@ func main() {
 
 	db.SetMaxOpenConns(25)
 	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(5 * time.Minute)
 	waitForDB()
 	migrate()
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/livez", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) })
 	mux.HandleFunc("/healthz", handleHealth)
 	mux.HandleFunc("/charge", handleCharge)
 	mux.HandleFunc("/refund", handleRefund)
@@ -42,8 +47,31 @@ func main() {
 	mux.HandleFunc("/balance/", handleBalance)
 
 	port := getEnv("PORT", "8083")
-	log.Printf("Payment service listening on :%s", port)
-	log.Fatal(http.ListenAndServe(":"+port, mux))
+	server := &http.Server{
+		Addr:         ":" + port,
+		Handler:      mux,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}
+
+	go func() {
+		log.Printf("Payment service listening on :%s", port)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("server error: %v", err)
+		}
+	}()
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	<-sigChan
+
+	log.Println("Shutting down...")
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		log.Printf("graceful shutdown error: %v", err)
+	}
 }
 
 func migrate() {
@@ -372,12 +400,12 @@ func getEnv(key, fallback string) string {
 }
 
 func waitForDB() {
-	for i := 0; i < 30; i++ {
+	for i := 0; i < 120; i++ {
 		if err := db.Ping(); err == nil {
 			return
 		}
-		log.Printf("Waiting for database... (%d/30)", i+1)
+		log.Printf("Waiting for database... (%d/120)", i+1)
 		time.Sleep(time.Second)
 	}
-	log.Fatal("Database not ready after 30s")
+	log.Fatal("Database not ready after 120s")
 }

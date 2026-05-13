@@ -39,6 +39,7 @@ func main() {
 	// Health check endpoint
 	go func() {
 		mux := http.NewServeMux()
+		mux.HandleFunc("/livez", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) })
 		mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(map[string]string{"status": "ok", "service": "worker"})
@@ -70,7 +71,7 @@ func pollAndProcess(ctx context.Context, queueURL string, services map[string]st
 			log.Println("Worker stopped")
 			return
 		default:
-			messages := receiveSQSMessages(queueURL)
+			messages := receiveSQSMessages(ctx, queueURL)
 
 			for _, raw := range messages {
 				var event Event
@@ -176,10 +177,12 @@ func handleEvent(client *http.Client, services map[string]string, event Event) e
 	return nil
 }
 
-func receiveSQSMessages(queueURL string) []string {
+func receiveSQSMessages(ctx context.Context, queueURL string) []string {
 	// Students implement with AWS SDK SQS ReceiveMessage
 	// Use long polling: WaitTimeSeconds = 20
 	// MaxNumberOfMessages = 10
+	// Honour ctx during the long-poll so SIGTERM unblocks cleanly
+	_ = ctx
 	return nil
 }
 

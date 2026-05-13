@@ -31,6 +31,7 @@ func main() {
 
 	db.SetMaxOpenConns(5)
 	db.SetMaxIdleConns(2)
+	db.SetConnMaxLifetime(5 * time.Minute)
 	waitForDB()
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -39,6 +40,7 @@ func main() {
 	// Health check
 	go func() {
 		mux := http.NewServeMux()
+		mux.HandleFunc("/livez", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) })
 		mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 			status := "ok"
 			if err := db.Ping(); err != nil {
@@ -229,12 +231,12 @@ func getEnv(key, fallback string) string {
 }
 
 func waitForDB() {
-	for i := 0; i < 30; i++ {
+	for i := 0; i < 120; i++ {
 		if err := db.Ping(); err == nil {
 			return
 		}
-		log.Printf("Waiting for database... (%d/30)", i+1)
+		log.Printf("Waiting for database... (%d/120)", i+1)
 		time.Sleep(time.Second)
 	}
-	log.Fatal("Database not ready after 30s")
+	log.Fatal("Database not ready after 120s")
 }
