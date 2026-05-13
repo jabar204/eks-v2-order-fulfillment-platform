@@ -32,7 +32,7 @@ Write the Dockerfiles. Write the Terraform. Write the Kubernetes manifests. Writ
 
 ### Requirements
 
-- EKS (1.29 or above) with managed node groups across 3 AZs
+- EKS (1.33 or above) with managed node groups across 3 AZs
 - Nine Deployments behind a single Ingress with TLS, routed to the right backend
 - PostgreSQL on a StatefulSet with a 20Gi PVC (gp3, encrypted)
 - Redis on a StatefulSet with AOF persistence on a 10Gi PVC (gp3, encrypted)
@@ -41,7 +41,7 @@ Write the Dockerfiles. Write the Terraform. Write the Kubernetes manifests. Writ
 - ECR repositories, one per service
 - VPC with private subnets. Avoid NAT gateways if you can.
 - Secrets sourced from AWS Secrets Manager via External Secrets or the Secrets Store CSI Driver. Not hardcoded, not in env files.
-- Ingress controller of your choice (NGINX or AWS Load Balancer Controller). cert-manager with Let's Encrypt for TLS. ExternalDNS managing Route 53 records.
+- Traefik as the Ingress controller, fronted by an AWS NLB. ingress-nginx is retired (no releases, no security fixes after March 2026) so do not pick it. cert-manager with Let's Encrypt for TLS. ExternalDNS managing Route 53 records.
 - GitHub Actions with OIDC. No long-lived AWS credentials.
 - ArgoCD in the cluster, App-of-Apps pattern, auto-sync on the dev overlay
 - Zero-downtime rollouts with rollback on failure
