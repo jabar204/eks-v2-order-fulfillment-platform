@@ -1,3 +1,34 @@
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go
+/services/*/vendor/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform.lock.hcl
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Environment
 .env
+.env.*
 *.pem

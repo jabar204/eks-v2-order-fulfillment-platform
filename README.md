@@ -1,136 +1,139 @@
-<div align="center">
-    <img src="./images/coderco.jpg" alt="CoderCo" width="300"/>
-</div>
+<p align="center">
+  <img src="images/coderco.jpg" alt="CoderCo" width="200"/>
+</p>
 
-# CoderCo – K8s Assignment
+# EKS v2 - Order Fulfillment Platform
 
-> **Goal:** Build a production-ready AWS platform on K8s, ship **any** containerised micro-service through policy-guarded pipelines and prove it all works.
-
----
-
-## 📋 Table of Contents
-
-- [CoderCo – K8s Assignment](#coderco--k8s-assignment)
-  - [📋 Table of Contents](#-table-of-contents)
-  - [Challenge Overview](#challenge-overview)
-  - [Core Requirements](#core-requirements)
-  - [Marking Rubric](#marking-rubric)
-  - [Bonus Points](#bonus-points)
-  - [Deliverables \& Submission ](#deliverables--submission-)
-  - [Recommended Repo Layout ](#recommended-repo-layout-)
-  - [Grading Bands ](#grading-bands-)
+A multi-service order platform on Amazon EKS. Nine services, one cluster, stateful workloads running on Kubernetes. The application code is provided. You build everything else.
 
 ---
 
-## Challenge Overview
+## Services
 
-You’re the DevOps team of **CoderCo**.
+| Service | Description |
+|---------|-------------|
+| **api-gateway** | Auth, rate limiting, routes requests to internal services |
+| **order-service** | Order lifecycle and state machine |
+| **inventory-service** | Stock management and reservations |
+| **payment-service** | Payment processing, refunds, ledger |
+| **notification-service** | Email and SMS dispatch |
+| **shipping-service** | Shipments, tracking, carrier webhooks |
+| **worker** | SQS consumer, orchestrates cross-service events |
+| **scheduler** | Cron jobs (expired reservations, abandoned orders, retries) |
+| **dashboard-api** | Admin dashboard UI, analytics and reporting |
 
-Your task is to:
-
-* 🔧 Spin up AWS infrastructure with **Terraform** (VPC, EKS 1.29 or above). Please use your own modules for resources. 
-* 📦 Package **any** micro-service (language irrelevant) using a **multi-stage Dockerfile**.  
-* 🔄 Push infra & app through **fully-automated pipelines** (IaC + CI/CD).  
-* 🔍 Secure, observe and document the platform well enough for any engineer to run your app or maintain the platform.
-
-Focus on production fundamentals—security, observability, automation and reproducibility. 
-
----
-
-## Core Requirements
-
-| # | Area | Must-haves |
-|---|------|------------|
-| 1 | **AWS Foundation** | VPC (public + private), EKS 1.29 or above, cluster-autoscaler, spot & on-demand node groups (or Fargate if you prefer but please explain your choice). |
-| 2 | **Micro-service** | Any API/service with health & readiness probes, containerised via multi-stage Docker. |
-| 3 | **Pipelines** | Two pipelines:<br>• **iac-pipeline** → `terraform plan` → gated `apply`<br>• **app-pipeline** → build → scan → push → deploy |
-| 4 | **Ingress** | Ingress controller of your choice. |
-| 5 | **Helm** | Charts for **all** add-ons and the app (versioned & templated). |
-| 6 | **Observability** | Prometheus, Grafana dashboards, Loki/Promtail for logs. |
-| 7 | **Security** | Trivy scan, tfsec/Checkov, OPA-Gatekeeper cluster policies, PodSecurity Standards. |
+Read the source code. Environment variables, endpoints and data models are in the code.
 
 ---
 
-## Marking Rubric  
+## Your Job
 
-*(Core = 100 pts)* <a name="marking-rubric"></a>
+Write the Dockerfiles. Write the Terraform. Write the Kubernetes manifests. Write the CI/CD pipeline. Deploy all nine services to EKS, with PostgreSQL and Redis running in-cluster on persistent volumes.
 
-| Category | Pts | Evidence We’ll Inspect |
-|----------|----:|------------------------|
-| **Project Management / Board** | **6** | Epics → tickets, status swim-lanes, PR links. |
-| **Terraform AWS Infra** | **18** | Reusable modules (vpc, eks, sg, iam, r53 etc); remote state; spot nodes & autoscaler. |
-| **Networking & Ingress** | **8** | Ingress controller of your choice, internal vs public ingress, Calico network-policies or AWS VPC CNI, Route 53 records. |
-| **CI Pipeline (IaC)** | **8** | plan/apply gates, tfsec/Checkov, SOPS-encrypted secrets or external secrets, failure alerts. |
-| **Container Build & Registry** | **8** | Multi-stage Docker, Trivy SBOM, push to ECR with immutable digests. |
-| **CD Pipeline (App)** | **12** | Helm rollout dev → prod, digest pinning, auto-rollback on readiness fail. |
-| **Security & Compliance** | **12** | OPA baseline+restricted, IRSA, secret-less images. |
-| **Observability** | **12** | Prom scrape configs, Grafana dashboards as JSON, Loki logs, actionable alerts. |
-| **Resilience & Scalability** | **8** | HPA, PDBs, disruption budgets, at least one chaos test. |
-| **Documentation & Architecture** | **8** | README, diagrams and any useful runbooks. |
-| **TOTAL CORE** | **100** |  |
+### Requirements
 
----
+- EKS (1.29 or above) with managed node groups across 3 AZs
+- Nine Deployments behind a single Ingress with TLS, routed to the right backend
+- PostgreSQL on a StatefulSet with a 20Gi PVC (gp3, encrypted)
+- Redis on a StatefulSet with AOF persistence on a 10Gi PVC (gp3, encrypted)
+- AWS EBS CSI Driver with IRSA, gp3 as the default storage class, a VolumeSnapshotClass configured
+- SQS queue with a dead letter queue (cross-service event bus)
+- ECR repositories, one per service
+- VPC with private subnets. Avoid NAT gateways if you can.
+- Secrets sourced from AWS Secrets Manager via External Secrets or the Secrets Store CSI Driver. Not hardcoded, not in env files.
+- Ingress controller of your choice (NGINX or AWS Load Balancer Controller). cert-manager with Let's Encrypt for TLS. ExternalDNS managing Route 53 records.
+- GitHub Actions with OIDC. No long-lived AWS credentials.
+- ArgoCD in the cluster, App-of-Apps pattern, auto-sync on the dev overlay
+- Zero-downtime rollouts with rollback on failure
+- Least-privilege IAM with IRSA for every service that touches AWS
+- Terraform with remote state
+- Multi-stage Docker builds
+- Container image scanning before deploy
 
-## Bonus Points
+### Deliverables
 
-*(+20 pts max – shoot your shot)* <a name="bonus-opportunities"></a>
-
-| Bonus Item | Pts | Full-Credit Expectations |
-|------------|----:|--------------------------|
-| **GitOps (Argo CD or Flux)** | **7** | App + infra in sync-waves, drift PRs. |
-| **Service Mesh (Istio ≥ 1.22)** | **7** | Mesh-wide mTLS, traffic split (v1/v2), ingress-gateway. |
-| **Cert-Manager + ExternalDNS** | **3** | ACME cert automation + Route 53 record mgmt. |
-| **Cost Visibility (Kubecost/OpenCost)** | **3** | Dashboard of namespace & asset spend. |
-| **TOTAL BONUS** | **20** |  |
-
----
-
-## Deliverables & Submission <a name="deliverables--submission"></a>
-
-1. **Repository** containing:  
-   * Terraform code (`/infra`), Helm charts (`/helm`), app code (`/app`).  
-   * GitHub Actions/GitLab CI YAML.  
-2. **README.md** (this file) updated with:  
-   * One-command bootstrap (`make deploy` or similar).  
-   * Point-and-click architecture diagram (`architecture.drawio` / `.png`).  
-   * Links to dashboards & project board (optional).  
-3. **Screenshot bundle** – Grafana, Trivy, Checkov, OPA outputs.
-4. **OPTIONAL - Two short demo videos** (≤ 2 min each):  
-   1. Terraform pipeline run.  
-   2. App pipeline → rollout + rollback.  
-
-Push everything to a public repo and submit the link via Discord. If you keep private, please invite us to the repo. Please don't push any secrets or any sensitive files/info/docs. 
+- [ ] Dockerfiles, one per service
+- [ ] Terraform for all infrastructure (VPC, EKS, IAM, ECR, SQS, addons)
+- [ ] Kubernetes manifests (Kustomize or Helm)
+- [ ] ArgoCD Applications wiring the cluster to your manifests repo
+- [ ] GitHub Actions pipelines for infra and app, separated
+- [ ] Working deployment with all services healthy and the end-to-end flow functional
+- [ ] Dashboard UI reachable over HTTPS at a real DNS name, connected to all services
+- [ ] README covering the sections below
 
 ---
 
-## Recommended Repo Layout <a name="recommended-repo-layout"></a>
+## What Your README Must Cover
 
-You may implement your own layout but here's a suggested one:
+This is not optional. Your README is part of the submission.
+
+**Architecture decisions** - what you built, why you built it that way, what you traded off. Why StatefulSets for Postgres instead of RDS. Why Kustomize over Helm or the other way round.
+
+**Deployment pipeline** - a developer pushes a change to the payment service. Walk through exactly what happens from commit to live traffic. How do app deploys and infra changes stay out of each other's way? What triggers what? Where does ArgoCD fit in that flow?
+
+**Secrets management** - nine services need database credentials, API keys, JWT secrets. How do they get from Secrets Manager into a pod? What happens when you rotate a secret?
+
+**Storage** - Postgres holds the only durable state in the system. How is the PVC backed? Encrypted? Snapshotted? What is your restore procedure and have you actually tested it?
+
+**Scaling strategy** - which services scale, on what metric, with HPA or KEDA? What stays fixed? What breaks first under load?
+
+**Database migrations** - seven services share one database. How do schema changes get applied? Job, init container, manual? What about rollback?
+
+---
+
+## Things to Consider
+
+These are not requirements. They are the kind of problems you will hit in production. How you handle them is up to you.
+
+- Your Postgres pod gets rescheduled to a different AZ. What happens to its PVC?
+- The worker processes events from SQS. What happens to events that fail three times?
+- The payment service goes down for two minutes. What happens to in-flight orders?
+- You need to add a column to the orders table. The dashboard service reads from that table. How do you deploy both without downtime?
+- A junior dev pushes a bad image for the notification service. How quickly can you roll back without affecting the other eight? Does ArgoCD help or hurt here?
+- Spot instances save money. Which workloads tolerate eviction? Which absolutely cannot?
+- Your logging pipeline ingests from nine services plus the cluster control plane. What does that cost per month? Is there a cheaper way?
+- You rotate the database password. Do all nine deployments restart? Is there a way to avoid that?
+- A single-AZ EBS volume becomes a problem when the AZ goes down. What is your answer?
+
+---
+
+## Local Development
 
 ```bash
-.
-├── README.md ## this file
-|---.github/workflows ## CICD pipelines
-├── architecture.drawio ## architecture diagram
-├── .gitignore ## ignore files
-├── Makefile ## for deployment
-├── helm ## helm charts for add-ons and app
-│   └── ...
-├── infra ## terraform code for aws infra
-│   └── ...
-├── app ## micro-service + Dockerfile etc
-│   └── ...
+docker compose up --build
 ```
 
 ---
 
-## Grading Bands <a name="grading-bands"></a>
+## Advanced
 
-| Score | Verdict |
-|-------|---------|
-| < 70  | Needs improvement – key production gaps. |
-| 70 – 84 | Pass – meets minimum prod standard. |
-| 85 – 99 | Solid – production-ready. |
-| ≥ 100 (incl. bonus) | Wizard – exceeded core scope. |
+Not required for submission. These will set your project apart.
+
+**Observability**. It is 2am. Orders are failing. You are on call. You need to answer four questions fast: which service is the problem, when did it start, what changed, who is affected. If your setup cannot answer those in under 10 minutes without `kubectl exec`, it is not production-ready. kube-prometheus-stack gives you the building blocks. RED metrics for the API layer. Saturation metrics for the data layer. Dashboards grouped by service, not by pod. Alerts that mean something. A way to follow one order across all nine services.
+
+**Service mesh**. Istio or Linkerd. mTLS between every service. Authorization policies that block lateral movement. Traffic shifting for canary releases. Distributed tracing across the order flow.
+
+**Backup and disaster recovery**. Velero for cluster-level backup. EBS snapshots on a schedule. Restore in a fresh cluster and prove the application comes back up with its data intact.
+
+**Strimzi Kafka**. Replace SQS with an in-cluster Kafka cluster managed by Strimzi. You will need to modify the worker plus order-service, payment-service and shipping-service to publish and consume from Kafka topics instead of SQS. Real work, real learning.
+
+**GPU inference**. Add a fraud-detection service on a GPU node group. Wire the order-service to call it before confirming an order. Expensive. Only worth it if you specifically want the MLOps signal on your CV.
 
 ---
+
+## Grading
+
+- All nine services running and healthy on EKS
+- End-to-end flow works through the dashboard UI (create order -> reserve inventory -> process payment -> ship -> deliver)
+- Postgres and Redis on StatefulSets with persistent volumes that survive pod restarts
+- Volume snapshot taken and restored successfully
+- Application reachable over HTTPS at a real DNS name
+- Pipeline deploys only what changed
+- Secrets not hardcoded anywhere
+- No long-lived AWS credentials
+- README covers all required sections with real decisions, not filler
+- You can explain every resource you created
+
+**Tear down when done.** EKS, EBS, NLB and data transfer add up fast.
+
+Everything else is on you. Good luck.
