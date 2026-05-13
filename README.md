@@ -140,3 +140,9 @@ Not required for submission. These will set your project apart.
 **Tear down when done.** EKS, EBS, NLB and data transfer add up fast.
 
 Everything else is on you. Good luck.
+
+---
+
+## Found a bug?
+
+The services have rough edges (see the audit notes in the team review channel). If you spot a real bug, open a PR against this repo. Include screenshots of the bug reproducing, your fix, and the same scenario working after the fix. The CoderCo team will review it. Good fixes stand out at grading time.
