@@ -1,0 +1,24 @@
+FROM golang:1.22-alpine AS builder
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o app .
+
+FROM alpine:3.20
+
+WORKDIR /app
+
+RUN addgroup -S app && adduser -S app -G app
+
+COPY --from=builder /app/app .
+
+USER app
+
+EXPOSE 8080
+
+ENTRYPOINT ["./app"]

@@ -1,0 +1,60 @@
+# ADR-001: Use Amazon EKS for the Order Fulfillment Platform
+
+## Status
+
+Accepted
+
+## Context
+
+The platform consists of nine Go microservices, PostgreSQL, Redis, SQS, background workers, scheduled jobs, ingress routing, TLS, autoscaling, secrets management, GitOps, and persistent storage.
+
+The assignment specifically requires Kubernetes on Amazon EKS with managed node groups, Karpenter, StatefulSets, IRSA, Traefik, cert-manager, ExternalDNS, ArgoCD, and persistent volumes.
+
+## Decision
+
+We will deploy the platform on Amazon EKS.
+
+## Why EKS
+
+EKS provides a managed Kubernetes control plane while still allowing full access to Kubernetes primitives such as Deployments, Services, StatefulSets, Ingress/Gateway API, PersistentVolumeClaims, IRSA, autoscaling, and GitOps.
+
+This fits the project because the goal is not only to run containers, but to demonstrate production Kubernetes platform engineering.
+
+## Alternatives Considered
+
+### ECS Fargate
+
+ECS would be simpler and cheaper to operate for many production container workloads. It removes much of the Kubernetes operational complexity.
+
+However, ECS would not satisfy the Kubernetes-focused requirements of this project. It also would not demonstrate StatefulSets, Kubernetes-native storage, ArgoCD, Karpenter, or Kubernetes ingress patterns.
+
+### Self-managed Kubernetes on EC2
+
+Self-managed Kubernetes gives maximum control, but it adds unnecessary operational burden. We would need to manage the Kubernetes control plane, upgrades, etcd, API server availability, and security patching.
+
+For this project, that complexity does not add enough value.
+
+### Kind or Minikube
+
+These are useful for local learning, but they do not represent a real AWS production deployment. They also cannot properly demonstrate AWS integrations such as IRSA, EBS CSI, NLB, Route 53, SQS, and Secrets Manager.
+
+## Trade-offs
+
+EKS gives strong production realism, but it is more complex and more expensive than ECS.
+
+We accept this trade-off because the purpose of the project is to demonstrate Kubernetes platform engineering at a high level.
+
+## Consequences
+
+We must manage:
+
+- Kubernetes manifests
+- Cluster add-ons
+- IAM roles for service accounts
+- Node autoscaling
+- Persistent storage
+- Ingress and TLS
+- GitOps deployment flow
+- Observability and rollback strategy
+
+This increases complexity, but it also creates a stronger flagship portfolio project.
