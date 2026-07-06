@@ -1,0 +1,56 @@
+# ADR-002: Use a Custom Amazon VPC
+
+## Status
+
+Accepted
+
+## Context
+
+Amazon EKS requires networking for worker nodes, load balancers, and communication between Kubernetes components. The application also contains stateful workloads and must be isolated from the public internet.
+
+## Decision
+
+A custom VPC will be created specifically for the EKS platform.
+
+The VPC will span three Availability Zones and contain separate public and private subnets.
+
+## Rationale
+
+Using a dedicated VPC provides:
+
+- Network isolation
+- Fine-grained routing control
+- Secure private workloads
+- Multi-AZ resilience
+- Support for Kubernetes networking
+
+## Alternatives Considered
+
+### Default AWS VPC
+
+Pros:
+- Faster to start
+- Already exists
+
+Cons:
+- Shared configuration
+- Poor separation
+- Not representative of production
+
+### Custom VPC
+
+Pros:
+- Full control
+- Better security
+- Production design
+- Easier to manage
+
+Cons:
+- More resources
+- More networking knowledge required
+
+## Consequences
+
+All platform resources will be deployed inside this VPC.
+
+Networking decisions such as routing, subnet placement, security groups, and internet access will be controlled by this design.

@@ -43,3 +43,15 @@ Thumbs.db
 .env
 .env.*
 *.pem
+
+# Terraform State
+*.tfstate
+*.tfstate.backup
+*.tfstate.*
+
+# Terraform working directory
+.terraform/
+**/.terraform/
+
+# Crash logs
+crash.log
