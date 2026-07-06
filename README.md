@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <p align="center">
   <img src="images/coderco.jpg" alt="CoderCo" width="200"/>
 </p>
@@ -146,3 +147,6 @@ Everything else is on you. Good luck.
 ## Found a bug?
 
 The services have rough edges (see the audit notes in the team review channel). If you spot a real bug, open a PR against this repo. Include screenshots of the bug reproducing, your fix, and the same scenario working after the fix. The CoderCo team will review it. Good fixes stand out at grading time.
+=======
+# eks-v2-order-fulfillment-platform
+>>>>>>> f462ccb2e37ed5fc37331c73d6e5b7d9f09bf917
