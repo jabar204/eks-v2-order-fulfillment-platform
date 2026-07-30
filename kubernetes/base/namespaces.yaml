@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-system
+  labels:
+    app.kubernetes.io/part-of: eks-v2-platform
+    environment: dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: order-platform
+  labels:
+    app.kubernetes.io/part-of: order-fulfillment-platform
+    environment: dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: data
+  labels:
+    app.kubernetes.io/part-of: order-fulfillment-platform
+    environment: dev
