@@ -1,0 +1,26 @@
+# Example values for the dev environment.
+# Copy to terraform.tfvars (gitignored) and adjust.
+
+aws_region         = "eu-west-2"
+project_name       = "eks-v2"
+environment        = "dev"
+kubernetes_version = "1.35"
+
+# Replace with your public IP/32 before exposing this beyond a short lab.
+# cluster_public_access_cidrs = ["203.0.113.10/32"]
+cluster_public_access_cidrs = ["0.0.0.0/0"]
+
+cluster_log_retention_days = 30
+
+github_org  = "jabar204"
+github_repo = "eks-v2-order-fulfillment-platform"
+
+github_infra_subjects = [
+  "repo:jabar204/eks-v2-order-fulfillment-platform:ref:refs/heads/main",
+  "repo:jabar204/eks-v2-order-fulfillment-platform:environment:dev",
+]
+
+github_app_subjects = [
+  "repo:jabar204/eks-v2-order-fulfillment-platform:ref:refs/heads/main",
+  "repo:jabar204/eks-v2-order-fulfillment-platform:environment:dev",
+]

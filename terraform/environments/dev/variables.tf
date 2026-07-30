@@ -15,3 +15,51 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+
+variable "kubernetes_version" {
+  description = "Kubernetes version for the EKS cluster"
+  type        = string
+  default     = "1.35"
+}
+
+variable "cluster_public_access_cidrs" {
+  description = "CIDR ranges allowed to access the public EKS API endpoint. Prefer your public IP/32 in real use."
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "cluster_log_retention_days" {
+  description = "CloudWatch retention for EKS control-plane logs"
+  type        = number
+  default     = 30
+}
+
+variable "github_org" {
+  description = "GitHub organization or user that owns the repository"
+  type        = string
+  default     = "jabar204"
+}
+
+variable "github_repo" {
+  description = "GitHub repository name (without org)"
+  type        = string
+  default     = "eks-v2-order-fulfillment-platform"
+}
+
+variable "github_infra_subjects" {
+  description = "Allowed OIDC sub claims for the infra (Terraform) role"
+  type        = list(string)
+  default = [
+    "repo:jabar204/eks-v2-order-fulfillment-platform:ref:refs/heads/main",
+    "repo:jabar204/eks-v2-order-fulfillment-platform:environment:dev",
+  ]
+}
+
+variable "github_app_subjects" {
+  description = "Allowed OIDC sub claims for the app (ECR/deploy) role"
+  type        = list(string)
+  default = [
+    "repo:jabar204/eks-v2-order-fulfillment-platform:ref:refs/heads/main",
+    "repo:jabar204/eks-v2-order-fulfillment-platform:environment:dev",
+  ]
+}

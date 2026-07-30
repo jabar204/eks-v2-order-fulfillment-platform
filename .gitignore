@@ -20,10 +20,13 @@ services/worker/worker
 
 # Terraform
 .terraform/
+**/.terraform/
 *.tfstate
 *.tfstate.backup
+*.tfstate.*
 *.tfvars
-.terraform.lock.hcl
+!**/terraform.tfvars.example
+# Commit .terraform.lock.hcl for reproducible plans
 
 # Kubernetes
 kubeconfig
@@ -43,15 +46,6 @@ Thumbs.db
 .env
 .env.*
 *.pem
-
-# Terraform State
-*.tfstate
-*.tfstate.backup
-*.tfstate.*
-
-# Terraform working directory
-.terraform/
-**/.terraform/
 
 # Crash logs
 crash.log

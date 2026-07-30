@@ -26,15 +26,85 @@ module "vpc" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
+  # Cost-conscious: no NAT. Private nodes reach AWS APIs via VPC endpoints.
   enable_nat_gateway = false
 
   public_subnet_tags = {
-    "kubernetes.io/role/elb" = "1"
+    "kubernetes.io/role/elb"                      = "1"
+    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
   }
 
   private_subnet_tags = {
-    "kubernetes.io/role/internal-elb" = "1"
+    "kubernetes.io/role/internal-elb"             = "1"
+    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+    "karpenter.sh/discovery"                      = local.cluster_name
   }
 
   tags = local.common_tags
+}
+
+# ---------------------------------------------------------------------------
+# VPC endpoints — private egress without NAT
+# Gateway: S3 | Interface: ECR, STS, EC2, EKS, Secrets Manager, SQS, Logs
+# ---------------------------------------------------------------------------
+
+resource "aws_security_group" "vpc_endpoints" {
+  name        = "${local.name_prefix}-vpc-endpoints"
+  description = "Interface VPC endpoints"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    description = "HTTPS from VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [module.vpc.vpc_cidr_block]
+  }
+
+  egress {
+    description = "Allow all egress"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-vpc-endpoints"
+  })
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = module.vpc.vpc_id
+  service_name      = "com.amazonaws.${var.aws_region}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = module.vpc.private_route_table_ids
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-s3-endpoint"
+  })
+}
+
+resource "aws_vpc_endpoint" "interface" {
+  for_each = toset([
+    "ecr.api",
+    "ecr.dkr",
+    "sts",
+    "ec2",
+    "eks",
+    "secretsmanager",
+    "sqs",
+    "logs",
+  ])
+
+  vpc_id              = module.vpc.vpc_id
+  service_name        = "com.amazonaws.${var.aws_region}.${each.key}"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = module.vpc.private_subnets
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
+  private_dns_enabled = true
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-${replace(each.key, ".", "-")}-endpoint"
+  })
 }
