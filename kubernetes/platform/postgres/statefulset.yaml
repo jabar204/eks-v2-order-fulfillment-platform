@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: postgres
+  namespace: data
+
+  labels:
+    app: postgres
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: order-fulfillment-platform
+
+spec:
+  serviceName: postgres
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: postgres
+
+  template:
+    metadata:
+      labels:
+        app: postgres
+        app.kubernetes.io/name: postgres
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: order-fulfillment-platform
+
+    spec:
+      serviceAccountName: postgres
+      terminationGracePeriodSeconds: 60
+
+      securityContext:
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+
+      containers:
+        - name: postgres
+          image: postgres:16
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+            - secretRef:
+                name: postgres-secret
+
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+
+          startupProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            failureThreshold: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+
+        labels:
+          app.kubernetes.io/name: postgres
+          app.kubernetes.io/component: database
+          app.kubernetes.io/part-of: order-fulfillment-platform
+
+      spec:
+        accessModes:
+          - ReadWriteOnce
+
+        storageClassName: gp3
+
+        resources:
+          requests:
+            storage: 20Gi
