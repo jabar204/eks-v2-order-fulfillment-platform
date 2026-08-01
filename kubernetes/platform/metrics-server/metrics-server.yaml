@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: metrics-server
+  namespace: kube-system
+
+spec:
+  replicas: 2
+
+  template:
+    spec:
+      priorityClassName: system-cluster-critical
+
+      nodeSelector:
+        role: system
+
+      containers:
+        - name: metrics-server
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+
+            limits:
+              cpu: 500m
+              memory: 512Mi8
