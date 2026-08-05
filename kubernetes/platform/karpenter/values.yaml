@@ -1,0 +1,39 @@
+replicas: 2
+
+serviceAccount:
+  create: true
+  name: karpenter
+
+  annotations:
+    eks.amazonaws.com/role-arn: REPLACE_WITH_KARPENTER_CONTROLLER_ROLE_ARN
+
+settings:
+  clusterName: eks-v2-dev-cluster
+  interruptionQueue: eks-v2-dev-karpenter-interruption
+
+controller:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+nodeSelector:
+  role: system
+
+priorityClassName: system-cluster-critical
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+
+        podAffinityTerm:
+          topologyKey: kubernetes.io/hostname
+
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: karpenter

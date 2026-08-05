@@ -108,3 +108,33 @@ output "eks_kms_key_arn" {
   description = "KMS key ARN used for EKS secrets encryption"
   value       = aws_kms_key.eks.arn
 }
+
+output "karpenter_interruption_queue_name" {
+  description = "SQS queue used by Karpenter for interruption handling"
+  value       = aws_sqs_queue.karpenter_interruption.name
+}
+
+output "karpenter_interruption_queue_arn" {
+  description = "ARN of the Karpenter interruption queue"
+  value       = aws_sqs_queue.karpenter_interruption.arn
+}
+
+output "karpenter_controller_role_arn" {
+  description = "IRSA IAM role used by the Karpenter controller"
+  value       = aws_iam_role.karpenter_controller.arn
+}
+
+output "karpenter_node_role_name" {
+  description = "IAM role used by Karpenter-created nodes"
+  value       = aws_iam_role.karpenter_node.name
+}
+
+output "karpenter_node_role_arn" {
+  description = "ARN of the IAM role used by Karpenter-created nodes"
+  value       = aws_iam_role.karpenter_node.arn
+}
+
+output "karpenter_node_instance_profile_name" {
+  description = "Pre-created instance profile used by Karpenter nodes"
+  value       = aws_iam_instance_profile.karpenter_node.name
+}
