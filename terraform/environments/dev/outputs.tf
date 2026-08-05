@@ -138,3 +138,12 @@ output "karpenter_node_instance_profile_name" {
   description = "Pre-created instance profile used by Karpenter nodes"
   value       = aws_iam_instance_profile.karpenter_node.name
 }
+output "aws_load_balancer_controller_role_arn" {
+  description = "IRSA role used by the AWS Load Balancer Controller"
+  value       = aws_iam_role.aws_load_balancer_controller.arn
+}
+
+output "aws_load_balancer_controller_policy_arn" {
+  description = "IAM policy used by the AWS Load Balancer Controller"
+  value       = aws_iam_policy.aws_load_balancer_controller.arn
+}
