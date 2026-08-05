@@ -1,0 +1,30 @@
+installCRDs: true
+
+replicaCount: 2
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+  limits:
+    cpu: 300m
+    memory: 256Mi
+
+nodeSelector:
+  role: system
+
+priorityClassName: system-cluster-critical
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+prometheus:
+  enabled: true
+
+webhook:
+  replicaCount: 2
+
+cainjector:
+  replicaCount: 2

@@ -1,0 +1,43 @@
+clusterName: eks-v2-dev-cluster
+
+region: eu-west-2
+
+vpcId: REPLACE_AFTER_TERRAFORM_APPLY
+
+replicaCount: 2
+
+serviceAccount:
+  create: true
+  name: aws-load-balancer-controller
+
+  annotations:
+    eks.amazonaws.com/role-arn: REPLACE_AFTER_TERRAFORM_APPLY
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+nodeSelector:
+  role: system
+
+priorityClassName: system-cluster-critical
+
+podDisruptionBudget:
+  maxUnavailable: 1
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+
+        podAffinityTerm:
+          topologyKey: kubernetes.io/hostname
+
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: aws-load-balancer-controller

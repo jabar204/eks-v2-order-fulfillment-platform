@@ -1,0 +1,48 @@
+global:
+  domain: argocd.local
+
+configs:
+  params:
+    server.insecure: true
+
+server:
+  replicas: 2
+
+  ingress:
+    enabled: false
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+controller:
+  replicas: 1
+
+repoServer:
+  replicas: 2
+
+applicationSet:
+  replicaCount: 2
+
+redis:
+  enabled: true
+
+dex:
+  enabled: false
+
+notifications:
+  enabled: false
+
+nodeSelector:
+  role: system
+
+priorityClassName: system-cluster-critical
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1

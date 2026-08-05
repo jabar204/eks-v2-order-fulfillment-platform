@@ -1,0 +1,54 @@
+installCRDs: true
+
+replicaCount: 2
+
+serviceAccount:
+  create: true
+  name: external-secrets
+
+  annotations:
+    eks.amazonaws.com/role-arn: REPLACE_AFTER_TERRAFORM_APPLY
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+nodeSelector:
+  role: system
+
+priorityClassName: system-cluster-critical
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+leaderElect: true
+
+webhook:
+  replicaCount: 2
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+certController:
+  replicaCount: 2
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+    limits:
+      cpu: 200m
+      memory: 256Mi

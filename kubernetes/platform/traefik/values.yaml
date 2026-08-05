@@ -1,0 +1,130 @@
+deployment:
+  enabled: true
+  kind: Deployment
+  replicas: 2
+
+image:
+  pullPolicy: IfNotPresent
+
+service:
+  enabled: true
+
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: external
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+
+  spec:
+    type: LoadBalancer
+    externalTrafficPolicy: Cluster
+
+ports:
+  web:
+    port: 8000
+
+    expose:
+      default: true
+
+    exposedPort: 80
+    protocol: TCP
+
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+
+  websecure:
+    port: 8443
+
+    expose:
+      default: true
+
+    exposedPort: 443
+    protocol: TCP
+
+providers:
+  kubernetesIngress:
+    enabled: true
+
+    publishedService:
+      enabled: true
+
+  kubernetesCRD:
+    enabled: true
+
+  kubernetesGateway:
+    enabled: true
+
+gateway:
+  enabled: false
+
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+  name: traefik
+
+log:
+  level: INFO
+  format: common
+
+accessLog:
+  enabled: true
+  format: json
+
+metrics:
+  prometheus:
+    addEntryPointsLabels: true
+    addRoutersLabels: true
+    addServicesLabels: true
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+nodeSelector:
+  role: system
+
+priorityClassName: system-cluster-critical
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+
+          topologyKey: kubernetes.io/hostname
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+securityContext:
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+
+  capabilities:
+    drop:
+      - ALL
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+
+  seccompProfile:
+    type: RuntimeDefault
+
+additionalArguments:
+  - --serverstransport.insecureskipverify=false
