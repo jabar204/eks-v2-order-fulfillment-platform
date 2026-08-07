@@ -31,7 +31,7 @@ variable "cluster_public_access_cidrs" {
 variable "cluster_log_retention_days" {
   description = "CloudWatch retention for EKS control-plane logs"
   type        = number
-  default     = 30
+  default     = 365
 }
 
 variable "github_infra_subjects" {
