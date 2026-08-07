@@ -34,18 +34,6 @@ variable "cluster_log_retention_days" {
   default     = 30
 }
 
-variable "github_org" {
-  description = "GitHub organization or user that owns the repository"
-  type        = string
-  default     = "jabar204"
-}
-
-variable "github_repo" {
-  description = "GitHub repository name (without org)"
-  type        = string
-  default     = "eks-v2-order-fulfillment-platform"
-}
-
 variable "github_infra_subjects" {
   description = "Allowed OIDC sub claims for the infra (Terraform) role"
   type        = list(string)
