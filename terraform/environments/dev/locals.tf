@@ -27,6 +27,4 @@ locals {
     "order-service",
     "notification-service",
   ]
-
-  github_repo_full = "${var.github_org}/${var.github_repo}"
 }
