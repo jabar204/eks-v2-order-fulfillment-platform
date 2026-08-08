@@ -9,14 +9,12 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o app .
 
-FROM alpine:3.20
+FROM gcr.io/distroless/static-debian12:nonroot
 
 WORKDIR /app
 
-RUN addgroup -S app && adduser -S app -G app
-
 COPY --from=builder /app/app .
 
-USER app
+USER nonroot:nonroot
 
 ENTRYPOINT ["./app"]
