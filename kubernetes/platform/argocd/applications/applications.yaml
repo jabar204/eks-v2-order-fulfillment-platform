@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 
 metadata:
-  name: root
+  name: order-fulfillment-dev
   namespace: argocd
 
   finalizers:
@@ -14,26 +14,17 @@ spec:
   source:
     repoURL: https://github.com/jabar204/eks-v2-order-fulfillment-platform.git
     targetRevision: main
-    path: kubernetes/platform/argocd/applications
+    path: kubernetes/overlays/dev
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: applications
 
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-      allowEmpty: false
 
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-
-    retry:
-      limit: 5
-
-      backoff:
-        duration: 5s
-        factor: 2
-        maxDuration: 3m

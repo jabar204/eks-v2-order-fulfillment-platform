@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+
+metadata:
+  name: worker
+  namespace: applications
+
+spec:
+  podSelector:
+    matchLabels:
+      app: worker
+
+  policyTypes:
+    - Egress
+
+  egress:
+    - to:
+        - namespaceSelector: {}
+
+      ports:
+        - protocol: UDP
+          port: 53
+
+        - protocol: TCP
+          port: 53
+
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: applications

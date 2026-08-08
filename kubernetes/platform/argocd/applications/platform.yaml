@@ -3,6 +3,7 @@ kind: Application
 
 metadata:
   name: platform
+  namespace: argocd
 
 spec:
   project: platform

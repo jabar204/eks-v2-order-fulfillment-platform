@@ -188,47 +188,54 @@ jobs:
           pattern: image-*
           merge-multiple: true
 
-      - name: Bump GitOps image tags
+      - name: Install Kustomize
+        shell: bash
+        run: |
+          set -euo pipefail
+          KUSTOMIZE_VERSION=5.4.3
+          curl -sL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" \
+            | tar xz -C /tmp
+          sudo mv /tmp/kustomize /usr/local/bin/kustomize
+          kustomize version
+
+      - name: Bump GitOps image tags in dev overlay
         shell: bash
         run: |
           set -euo pipefail
           short_sha="$(echo '${{ github.sha }}' | cut -c1-7)"
-          updated=0
+          overlay="kubernetes/overlays/dev"
+          services=()
 
+          if [[ ! -f "${overlay}/kustomization.yaml" ]]; then
+            echo "Missing ${overlay}/kustomization.yaml"
+            exit 1
+          fi
+
+          pushd "$overlay" >/dev/null
           for file in /tmp/images/*.txt; do
             [[ -f "$file" ]] || continue
             service="$(basename "$file" .txt)"
             image="$(tr -d '[:space:]' < "$file")"
-            deploy="kubernetes/applications/${service}/deployment.yaml"
-
-            if [[ ! -f "$deploy" ]]; then
-              echo "Skipping ${service}: missing ${deploy}"
-              continue
-            fi
-
-            # Replace any current image: line for this service container with the immutable ECR tag.
-            if grep -qE "image: .*${service}" "$deploy"; then
-              sed -i -E "s|image: .*${service}[^[:space:]]*|image: ${image}|g" "$deploy"
-            else
-              # Fallback: first image: line in the Deployment
-              sed -i -E "0,/image: .*/s|image: .*|image: ${image}|" "$deploy"
-            fi
-
-            echo "Updated ${deploy} -> ${image}"
-            updated=$((updated + 1))
+            # Prefer full image URI so newName + newTag are updated together.
+            kustomize edit set image "REPLACE_WITH_ECR/${service}=${image}"
+            echo "Updated overlay image REPLACE_WITH_ECR/${service} -> ${image}"
+            services+=("${service}")
           done
+          popd >/dev/null
 
-          if [[ "$updated" -eq 0 ]]; then
-            echo "No deployment manifests updated (paths may not be committed yet)."
+          if [[ ${#services[@]} -eq 0 ]]; then
+            echo "No image artifacts found to promote."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add kubernetes/applications/*/deployment.yaml
+          git add kubernetes/overlays/dev/kustomization.yaml
           if git diff --staged --quiet; then
             echo "No GitOps changes to commit."
             exit 0
           fi
-          git commit -m "chore(gitops): bump image tags to ${short_sha}"
+
+          joined="$(IFS=,; echo "${services[*]}")"
+          git commit -m "chore(gitops): deploy ${joined} ${short_sha}"
           git push

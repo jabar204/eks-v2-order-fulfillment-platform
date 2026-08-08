@@ -159,7 +159,8 @@ jobs:
             fi
           done
 
-      - name: Validate Argo CD manifests
+      - name: Validate GitOps overlay and Argo CD
         run: |
+          kubectl kustomize kubernetes/overlays/dev > /dev/null
           kubectl kustomize kubernetes/platform/argocd > /dev/null
           kubectl kustomize kubernetes/platform/argocd/applications > /dev/null

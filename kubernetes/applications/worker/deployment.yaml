@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: worker
+  namespace: applications
+
+  labels:
+    app: worker
+    app.kubernetes.io/name: worker
+    app.kubernetes.io/component: background-worker
+    app.kubernetes.io/part-of: order-fulfillment-platform
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: worker
+
+  template:
+    metadata:
+      labels:
+        app: worker
+        app.kubernetes.io/name: worker
+        app.kubernetes.io/component: background-worker
+        app.kubernetes.io/part-of: order-fulfillment-platform
+
+    spec:
+      serviceAccountName: worker
+
+      containers:
+        - name: worker
+          image: REPLACE_WITH_ECR/worker:latest
+          imagePullPolicy: IfNotPresent
+
+          env:
+            - name: SQS_QUEUE_URL
+              value: REPLACE_AFTER_TERRAFORM_APPLY
+
+            - name: HEALTH_PORT
+              value: "8090"
+
+          ports:
+            - name: health
+              containerPort: 8090
+              protocol: TCP
+
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+      tolerations:
+        - key: capacity-type
+          operator: Equal
+          value: spot
+          effect: NoSchedule

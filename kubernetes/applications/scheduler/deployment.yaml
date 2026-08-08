@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: scheduler
+  namespace: applications
+
+  labels:
+    app: scheduler
+    app.kubernetes.io/name: scheduler
+    app.kubernetes.io/component: scheduler
+    app.kubernetes.io/part-of: order-fulfillment-platform
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: scheduler
+
+  template:
+    metadata:
+      labels:
+        app: scheduler
+        app.kubernetes.io/name: scheduler
+        app.kubernetes.io/component: scheduler
+        app.kubernetes.io/part-of: order-fulfillment-platform
+
+    spec:
+      serviceAccountName: scheduler
+
+      containers:
+        - name: scheduler
+          image: REPLACE_WITH_ECR/scheduler:latest
+          imagePullPolicy: IfNotPresent
+
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: scheduler-secrets
+                  key: DATABASE_URL
+
+            - name: HEALTH_PORT
+              value: "8091"
+
+          ports:
+            - name: health
+              containerPort: 8091
+              protocol: TCP
+
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+      tolerations:
+        - key: workload-type
+          operator: Equal
+          value: application
+          effect: NoSchedule

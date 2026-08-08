@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: notification-service
+  namespace: applications
+
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: order-fulfillment-platform
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: notification-service
+
+  ports:
+    - name: http
+      port: 8084
+      targetPort: 8084
+      protocol: TCP
