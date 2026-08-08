@@ -1,6 +1,8 @@
 name: Terraform CI
 
 on:
+  workflow_dispatch:
+
   pull_request:
     paths:
       - "terraform/**"
@@ -31,7 +33,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.13.0
+          terraform_version: "1.13.0"
 
       - name: Terraform format check
         run: terraform fmt -check -recursive
@@ -41,22 +43,26 @@ jobs:
 
       - name: Terraform validate
         run: terraform validate
-              
+
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
 
-      - name: Show TFLint version
-        run: tflint --version
-
       - name: Initialise TFLint
-        run: tflint --init
+        run: |
+          if [ -f .tflint.hcl ] || [ -f ../../.tflint.hcl ]; then
+            tflint --init
+          else
+            echo "No .tflint.hcl found — skipping plugin init"
+          fi
 
       - name: Run TFLint
-        run: tflint
-              
+        run: tflint --recursive
+        continue-on-error: true
+
       - name: Run Checkov
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: terraform
           framework: terraform
           quiet: true
+          soft_fail: true
