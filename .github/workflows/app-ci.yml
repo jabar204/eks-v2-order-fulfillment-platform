@@ -60,6 +60,12 @@ jobs:
         working-directory: services/${{ matrix.service }}
         run: go vet ./...
 
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          working-directory: services/${{ matrix.service }}
+
   docker-build:
     runs-on: ubuntu-latest
 
