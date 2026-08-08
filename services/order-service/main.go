@@ -253,7 +253,6 @@ func listOrders(w http.ResponseWriter, r *http.Request) {
 	if status != "" {
 		query += fmt.Sprintf(" AND status = $%d", argN)
 		args = append(args, status)
-		argN++
 	}
 	query += " ORDER BY created_at DESC LIMIT 100"
 

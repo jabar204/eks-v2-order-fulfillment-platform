@@ -7,6 +7,7 @@ on:
     paths:
       - "services/**"
       - "kubernetes/**"
+      - ".golangci.yml"
       - ".github/workflows/app-ci.yml"
 
   push:
@@ -15,6 +16,7 @@ on:
     paths:
       - "services/**"
       - "kubernetes/**"
+      - ".golangci.yml"
       - ".github/workflows/app-ci.yml"
 
 permissions:
@@ -63,8 +65,9 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          version: v1.61.0
           working-directory: services/${{ matrix.service }}
+          args: --config=${{ github.workspace }}/.golangci.yml
 
   docker-build:
     runs-on: ubuntu-latest

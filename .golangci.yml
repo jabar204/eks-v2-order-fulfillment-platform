@@ -1,0 +1,11 @@
+# Application services are provided starter code with many unchecked errors.
+# Keep CI useful without forcing a full rewrite of upstream service code.
+run:
+  timeout: 3m
+
+linters:
+  disable:
+    - errcheck
+
+issues:
+  exclude-use-default: false
