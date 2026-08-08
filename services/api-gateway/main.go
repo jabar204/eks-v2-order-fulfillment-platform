@@ -235,10 +235,7 @@ func isPublicPath(path string) bool {
 		}
 	}
 	// Allow health checks through to downstream services
-	if strings.HasSuffix(path, "/healthz") {
-		return true
-	}
-	return false
+	return strings.HasSuffix(path, "/healthz")
 }
 
 func validateToken(r *http.Request) (jwt.MapClaims, error) {
