@@ -69,6 +69,35 @@ jobs:
           working-directory: services/${{ matrix.service }}
           args: --config=${{ github.workspace }}/.golangci.yml
 
+  hadolint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - order-service
+          - inventory-service
+          - payment-service
+          - notification-service
+          - shipping-service
+          - worker
+          - scheduler
+          - dashboard-api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: services/${{ matrix.service }}/Dockerfile
+          # Soft gate: report Dockerfile smells without blocking CI on provided images
+          failure-threshold: error
+        continue-on-error: true
+
   docker-build:
     runs-on: ubuntu-latest
 
@@ -93,14 +122,17 @@ jobs:
       - name: Build image
         working-directory: services/${{ matrix.service }}
         run: |
-          if [ -f Dockerfile ]; then
-            docker build -t "${{ matrix.service }}:ci" -f Dockerfile .
-          elif [ -f dockerfile ]; then
-            docker build -t "${{ matrix.service }}:ci" -f dockerfile .
-          else
-            echo "No Dockerfile found for ${{ matrix.service }}"
-            exit 1
-          fi
+          docker build -t "${{ matrix.service }}:ci" -f Dockerfile .
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: "${{ matrix.service }}:ci"
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL
+          vuln-type: os,library
 
   kustomize:
     runs-on: ubuntu-latest
