@@ -42,10 +42,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: "1.22"
           cache-dependency-path: services/${{ matrix.service }}/go.sum
@@ -63,6 +63,7 @@ jobs:
         run: go vet ./...
 
       - name: Run golangci-lint
+        # v6 matches golangci-lint v1.x; v7+ requires golangci-lint v2
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.61.0
@@ -88,7 +89,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Lint Dockerfile
         uses: hadolint/hadolint-action@v3.1.0
@@ -117,7 +118,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Build image
         working-directory: services/${{ matrix.service }}
@@ -141,7 +142,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v4

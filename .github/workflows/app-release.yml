@@ -1,0 +1,234 @@
+name: Application Release
+
+# Code-complete CD path: OIDC → ECR (immutable SHA tags) → GitOps image bump.
+# Requires terraform apply + repository secret AWS_ROLE_ARN_APP before it can succeed against AWS.
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: "Service to release, or 'all'"
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - api-gateway
+          - order-service
+          - inventory-service
+          - payment-service
+          - notification-service
+          - shipping-service
+          - worker
+          - scheduler
+          - dashboard-api
+
+  push:
+    branches:
+      - main
+    paths:
+      - "services/**"
+      - ".github/workflows/app-release.yml"
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: app-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'eu-west-2' }}
+  NAME_PREFIX: eks-v2-dev
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.set.outputs.services }}
+      has_services: ${{ steps.set.outputs.has_services }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Resolve services to release
+        id: set
+        shell: bash
+        run: |
+          set -euo pipefail
+          ALL=(
+            api-gateway
+            order-service
+            inventory-service
+            payment-service
+            notification-service
+            shipping-service
+            worker
+            scheduler
+            dashboard-api
+          )
+
+          selected=()
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            choice="${{ inputs.service }}"
+            if [[ "$choice" == "all" ]]; then
+              selected=("${ALL[@]}")
+            else
+              selected=("$choice")
+            fi
+          else
+            before="${{ github.event.before }}"
+            if [[ -z "$before" || "$before" =~ ^0+$ ]]; then
+              selected=("${ALL[@]}")
+            else
+              changed="$(git diff --name-only "$before" "${{ github.sha }}" || true)"
+              for svc in "${ALL[@]}"; do
+                if grep -qE "^services/${svc}/" <<<"$changed"; then
+                  selected+=("$svc")
+                fi
+              done
+            fi
+          fi
+
+          if [[ ${#selected[@]} -eq 0 ]]; then
+            echo "has_services=false" >> "$GITHUB_OUTPUT"
+            echo "services=[]" >> "$GITHUB_OUTPUT"
+            echo "No service changes detected."
+            exit 0
+          fi
+
+          json="$(printf '%s\n' "${selected[@]}" | jq -R . | jq -cs .)"
+          echo "has_services=true" >> "$GITHUB_OUTPUT"
+          echo "services=$json" >> "$GITHUB_OUTPUT"
+          echo "Releasing: $json"
+
+  build-push:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_services == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.services) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_APP }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Image metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          short_sha="$(echo '${{ github.sha }}' | cut -c1-7)"
+          registry="${{ steps.ecr.outputs.registry }}"
+          repo="${{ env.NAME_PREFIX }}-${{ matrix.service }}"
+          image="${registry}/${repo}:${short_sha}"
+          echo "short_sha=${short_sha}" >> "$GITHUB_OUTPUT"
+          echo "repository=${repo}" >> "$GITHUB_OUTPUT"
+          echo "image=${image}" >> "$GITHUB_OUTPUT"
+          echo "Building ${image}"
+
+      - name: Build image
+        working-directory: services/${{ matrix.service }}
+        run: docker build -t "${{ steps.meta.outputs.image }}" -f Dockerfile .
+
+      - name: Scan image with Trivy (hard gate)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: "${{ steps.meta.outputs.image }}"
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL
+          vuln-type: os,library
+
+      - name: Push image
+        run: docker push "${{ steps.meta.outputs.image }}"
+
+      - name: Write image artifact
+        run: |
+          mkdir -p /tmp/images
+          echo "${{ steps.meta.outputs.image }}" > "/tmp/images/${{ matrix.service }}.txt"
+
+      - name: Upload image reference
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-${{ matrix.service }}
+          path: /tmp/images/${{ matrix.service }}.txt
+          retention-days: 5
+
+  update-gitops:
+    needs: [detect-changes, build-push]
+    if: needs.detect-changes.outputs.has_services == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download image references
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/images
+          pattern: image-*
+          merge-multiple: true
+
+      - name: Bump GitOps image tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          short_sha="$(echo '${{ github.sha }}' | cut -c1-7)"
+          updated=0
+
+          for file in /tmp/images/*.txt; do
+            [[ -f "$file" ]] || continue
+            service="$(basename "$file" .txt)"
+            image="$(tr -d '[:space:]' < "$file")"
+            deploy="kubernetes/applications/${service}/deployment.yaml"
+
+            if [[ ! -f "$deploy" ]]; then
+              echo "Skipping ${service}: missing ${deploy}"
+              continue
+            fi
+
+            # Replace any current image: line for this service container with the immutable ECR tag.
+            if grep -qE "image: .*${service}" "$deploy"; then
+              sed -i -E "s|image: .*${service}[^[:space:]]*|image: ${image}|g" "$deploy"
+            else
+              # Fallback: first image: line in the Deployment
+              sed -i -E "0,/image: .*/s|image: .*|image: ${image}|" "$deploy"
+            fi
+
+            echo "Updated ${deploy} -> ${image}"
+            updated=$((updated + 1))
+          done
+
+          if [[ "$updated" -eq 0 ]]; then
+            echo "No deployment manifests updated (paths may not be committed yet)."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add kubernetes/applications/*/deployment.yaml
+          if git diff --staged --quiet; then
+            echo "No GitOps changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(gitops): bump image tags to ${short_sha}"
+          git push
