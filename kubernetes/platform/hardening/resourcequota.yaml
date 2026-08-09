@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ResourceQuota
+
+metadata:
+  name: applications-quota
+  namespace: applications
+
+spec:
+  hard:
+    requests.cpu: "8"
+    requests.memory: 16Gi
+    limits.cpu: "16"
+    limits.memory: 32Gi
+    pods: "80"
+    persistentvolumeclaims: "10"
+---
+apiVersion: v1
+kind: ResourceQuota
+
+metadata:
+  name: data-quota
+  namespace: data
+
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    limits.cpu: "8"
+    limits.memory: 16Gi
+    pods: "20"
+    persistentvolumeclaims: "10"

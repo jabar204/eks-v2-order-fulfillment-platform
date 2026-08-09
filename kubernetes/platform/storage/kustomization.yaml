@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - storageclass-gp3.yaml
   - volumesnapshotclass.yaml
-  
+  # volumesnapshot-postgres-test.yaml is applied manually during DR drills

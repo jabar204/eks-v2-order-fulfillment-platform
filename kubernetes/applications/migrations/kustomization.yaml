@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - job.yaml
+
+configMapGenerator:
+  - name: db-migrations
+    namespace: data
+    files:
+      - 001_init.sql=sql/001_init.sql
+
+generatorOptions:
+  disableNameSuffixHash: true

@@ -1,0 +1,36 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+
+metadata:
+  name: worker
+  namespace: applications
+
+  labels:
+    app.kubernetes.io/name: worker
+    app.kubernetes.io/part-of: order-fulfillment-platform
+
+spec:
+  scaleTargetRef:
+    name: worker
+
+  pollingInterval: 15
+  cooldownPeriod: 60
+  minReplicaCount: 1
+  maxReplicaCount: 10
+
+  advanced:
+    restoreToOriginalReplicaCount: false
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 120
+
+  triggers:
+    - type: aws-sqs-queue
+      authenticationRef:
+        name: keda-aws
+      metadata:
+        queueURL: REPLACE_AFTER_TERRAFORM_APPLY
+        queueLength: "5"
+        awsRegion: eu-west-2
+        identityOwner: operator

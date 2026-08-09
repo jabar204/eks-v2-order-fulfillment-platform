@@ -1,0 +1,107 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+
+metadata:
+  name: api-gateway
+  namespace: applications
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+
+metadata:
+  name: order-service
+  namespace: applications
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: order-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+
+metadata:
+  name: inventory-service
+  namespace: applications
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: inventory-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+
+metadata:
+  name: payment-service
+  namespace: applications
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: payment-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+
+metadata:
+  name: notification-service
+  namespace: applications
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: notification-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+
+metadata:
+  name: shipping-service
+  namespace: applications
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: shipping-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+
+metadata:
+  name: dashboard-api
+  namespace: applications
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: dashboard-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+
+metadata:
+  name: postgres
+  namespace: data
+spec:
+  maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: postgres
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+
+metadata:
+  name: redis
+  namespace: data
+spec:
+  maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: redis

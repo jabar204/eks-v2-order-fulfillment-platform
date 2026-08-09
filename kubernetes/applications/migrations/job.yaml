@@ -1,0 +1,77 @@
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: db-migrate-001
+  namespace: data
+
+  labels:
+    app.kubernetes.io/name: db-migrate
+    app.kubernetes.io/part-of: order-fulfillment-platform
+    app.kubernetes.io/component: migrations
+
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 600
+
+  template:
+    metadata:
+      labels:
+        app: db-migrate
+
+    spec:
+      restartPolicy: OnFailure
+
+      containers:
+        - name: migrate
+          image: postgres:16-alpine
+          imagePullPolicy: IfNotPresent
+
+          env:
+            - name: PGHOST
+              value: postgres.data.svc.cluster.local
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              value: postgres
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              echo "Applying schema migrations..."
+              psql -v ON_ERROR_STOP=1 -f /migrations/001_init.sql
+              echo "Migrations complete."
+
+          volumeMounts:
+            - name: sql
+              mountPath: /migrations
+              readOnly: true
+
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+
+      volumes:
+        - name: sql
+          configMap:
+            name: db-migrations

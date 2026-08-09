@@ -1,0 +1,17 @@
+# Manual/test VolumeSnapshot of the Postgres PVC.
+# Create after the PVC exists: kubectl apply -f volumesnapshot-postgres-test.yaml
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+
+metadata:
+  name: postgres-data-test
+  namespace: data
+
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: order-fulfillment-platform
+
+spec:
+  volumeSnapshotClassName: ebs-snapshot-class
+  source:
+    persistentVolumeClaimName: postgres-data-postgres-0

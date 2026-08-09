@@ -40,6 +40,7 @@ variable "github_infra_subjects" {
   default = [
     "repo:jabar204/eks-v2-order-fulfillment-platform:ref:refs/heads/main",
     "repo:jabar204/eks-v2-order-fulfillment-platform:environment:dev",
+    "repo:jabar204/eks-v2-order-fulfillment-platform:pull_request",
   ]
 }
 

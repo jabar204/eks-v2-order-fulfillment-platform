@@ -9,7 +9,8 @@ resource "aws_ecr_repository" "services" {
   }
 
   encryption_configuration {
-    encryption_type = "AES256"
+    encryption_type = "KMS"
+    kms_key         = aws_kms_key.eks.arn
   }
 
   tags = merge(local.common_tags, {

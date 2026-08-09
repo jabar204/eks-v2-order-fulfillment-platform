@@ -162,5 +162,9 @@ jobs:
       - name: Validate GitOps overlay and Argo CD
         run: |
           kubectl kustomize kubernetes/overlays/dev > /dev/null
+          kubectl kustomize kubernetes/platform > /dev/null
           kubectl kustomize kubernetes/platform/argocd > /dev/null
           kubectl kustomize kubernetes/platform/argocd/applications > /dev/null
+          kubectl kustomize kubernetes/platform/keda > /dev/null
+          kubectl kustomize kubernetes/platform/monitoring > /dev/null
+          kubectl kustomize kubernetes/platform/hardening > /dev/null

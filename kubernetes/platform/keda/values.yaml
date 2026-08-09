@@ -1,0 +1,32 @@
+# Helm values for kedacore/keda (install during platform bootstrap).
+# helm repo add kedacore https://kedacore.github.io/charts
+# helm upgrade --install keda kedacore/keda -n keda --create-namespace -f values.yaml
+
+replicaCount: 1
+
+serviceAccount:
+  create: true
+  name: keda-operator
+  annotations:
+    eks.amazonaws.com/role-arn: REPLACE_AFTER_TERRAFORM_APPLY
+
+podIdentity:
+  aws:
+    irsa:
+      enabled: true
+      roleArn: REPLACE_AFTER_TERRAFORM_APPLY
+
+resources:
+  operator:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+prometheus:
+  metricServer:
+    enabled: true
+  operator:
+    enabled: true

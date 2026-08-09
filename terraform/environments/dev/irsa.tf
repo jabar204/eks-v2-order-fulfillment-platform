@@ -151,7 +151,7 @@ data "aws_iam_policy_document" "app_sqs_assume" {
     condition {
       test     = "StringEquals"
       variable = "${local.eks_oidc_issuer_host}:sub"
-      values   = ["system:serviceaccount:${each.key}:${each.key}"]
+      values   = ["system:serviceaccount:applications:${each.key}"]
     }
   }
 }

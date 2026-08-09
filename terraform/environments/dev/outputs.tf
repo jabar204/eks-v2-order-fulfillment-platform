@@ -147,3 +147,16 @@ output "aws_load_balancer_controller_policy_arn" {
   description = "IAM policy used by the AWS Load Balancer Controller"
   value       = aws_iam_policy.aws_load_balancer_controller.arn
 }
+output "worker_sqs_role_arn" {
+  description = "IRSA role ARN used by the worker for SQS access"
+  value       = aws_iam_role.app_sqs["worker"].arn
+}
+output "order_service_sqs_role_arn" {
+  description = "IRSA role ARN used by order-service for SQS access"
+  value       = aws_iam_role.app_sqs["order-service"].arn
+}
+
+output "notification_service_sqs_role_arn" {
+  description = "IRSA role ARN used by notification-service for SQS access"
+  value       = aws_iam_role.app_sqs["notification-service"].arn
+}

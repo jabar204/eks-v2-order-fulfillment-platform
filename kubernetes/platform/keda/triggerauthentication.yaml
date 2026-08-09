@@ -1,0 +1,11 @@
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+
+metadata:
+  name: keda-aws
+  namespace: applications
+
+spec:
+  # KEDA operator IRSA (set in values.yaml) reads SQS queue depth.
+  podIdentity:
+    provider: aws-eks
