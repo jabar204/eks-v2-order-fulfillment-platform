@@ -6,6 +6,7 @@ metadata:
   namespace: applications
 
 spec:
-  # KEDA operator IRSA (set in values.yaml) reads SQS queue depth.
+  # KEDA 2.20+: use AWS IRSA via the operator ServiceAccount role.
   podIdentity:
-    provider: aws-eks
+    provider: aws
+    identityOwner: keda
