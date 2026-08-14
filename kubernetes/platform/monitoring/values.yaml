@@ -5,7 +5,8 @@
 
 grafana:
   enabled: true
-  adminPassword: REPLACE_AFTER_TERRAFORM_APPLY
+  # Set at bootstrap; rotate via Secret after install (do not rely on this long-term)
+  adminPassword: "ChangeMe-Grafana-Dev-Only"
   persistence:
     enabled: false
   defaultDashboardsEnabled: true

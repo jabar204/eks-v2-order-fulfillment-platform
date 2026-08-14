@@ -1,32 +1,37 @@
 # Placeholders to replace after Terraform apply
 
-Run before go-live:
+## Resolved (live AWS account 283434716298 / eu-west-2)
+
+| Item | Value |
+|------|-------|
+| Account ID | `283434716298` |
+| Cluster | `eks-v2-dev-cluster` |
+| VPC | `vpc-0104ccb441649f51c` |
+| SQS queue | `https://sqs.eu-west-2.amazonaws.com/283434716298/eks-v2-dev-order-events` |
+| ECR pattern | `283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-<service>` |
+| GitHub app role | `arn:aws:iam::283434716298:role/eks-v2-dev-github-actions-app` |
+| GitHub infra role | `arn:aws:iam::283434716298:role/eks-v2-dev-github-actions-infra` |
+
+## GitHub Actions secrets / vars (set manually in repo settings)
+
+| Name | Type | Value |
+|------|------|-------|
+| `AWS_ROLE_ARN_APP` | secret | `arn:aws:iam::283434716298:role/eks-v2-dev-github-actions-app` |
+| `AWS_ROLE_ARN_INFRA` | secret | `arn:aws:iam::283434716298:role/eks-v2-dev-github-actions-infra` |
+| `AWS_REGION` | variable | `eu-west-2` |
+
+## Intentionally remaining in Git
+
+| Pattern | Why |
+|---------|-----|
+| `REPLACE_WITH_ECR/<service>` | Kustomize **image name** keys in base Deployments — overlay rewrites them |
+| `newTag: bootstrap` | Until Application Release pushes the first real `<git-sha>` |
+| Grafana `adminPassword` in values | Temporary; rotate after Helm install |
+
+## Search
 
 ```bash
-git grep "REPLACE_"
+git grep "REPLACE_AFTER"
 git grep "ACCOUNT_ID"
 git grep "bootstrap"
 ```
-
-## Values that depend on AWS outputs
-
-| Placeholder / location | Terraform output / source |
-|------------------------|---------------------------|
-| `ACCOUNT_ID` in `kubernetes/overlays/dev/kustomization.yaml` | AWS account ID (`aws_caller_identity`) |
-| `newTag: bootstrap` in overlay images | First real `<git-sha>` from Application Release |
-| `REPLACE_WITH_ECR/<service>` (base Deployments) | Left as Kustomize image **name**; overlay rewrites |
-| `REPLACE_AFTER_TERRAFORM_APPLY` SQS URL (worker, producers) | `sqs_queue_url` (or equivalent) |
-| Worker SA `eks.amazonaws.com/role-arn` | `worker_sqs_role_arn` / `app_irsa_role_arns["worker"]` |
-| KEDA values / TriggerAuthentication IRSA | Worker or dedicated KEDA role ARN |
-| KEDA ScaledObject `queueURL` | SQS queue URL |
-| External Secrets / ALB controller / Karpenter role ARNs | Matching Terraform IRSA outputs |
-| ALB controller `vpcId` | `vpc_id` |
-| Grafana `adminPassword` | Generate + store in Secrets Manager |
-| GitHub secret `AWS_ROLE_ARN_APP` | `github_actions_app_role_arn` |
-| GitHub secret `AWS_ROLE_ARN_INFRA` | `github_actions_infra_role_arn` |
-| GitHub var `AWS_REGION` | `eu-west-2` |
-
-## Intentionally unchanged until first release
-
-- Overlay `newTag: bootstrap` — CD replaces per service on first successful release.
-- Base image names `REPLACE_WITH_ECR/...` — Kustomize image transformer keys, not live registry hosts.

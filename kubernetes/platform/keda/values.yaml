@@ -8,13 +8,13 @@ serviceAccount:
   create: true
   name: keda-operator
   annotations:
-    eks.amazonaws.com/role-arn: REPLACE_AFTER_TERRAFORM_APPLY
+    eks.amazonaws.com/role-arn: arn:aws:iam::283434716298:role/eks-v2-dev-worker
 
 podIdentity:
   aws:
     irsa:
       enabled: true
-      roleArn: REPLACE_AFTER_TERRAFORM_APPLY
+      roleArn: arn:aws:iam::283434716298:role/eks-v2-dev-worker
 
 resources:
   operator:

@@ -56,7 +56,7 @@ providers:
     enabled: true
 
   kubernetesGateway:
-    enabled: true
+    enabled: false
 
 gateway:
   enabled: false

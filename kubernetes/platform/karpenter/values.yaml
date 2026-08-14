@@ -5,7 +5,7 @@ serviceAccount:
   name: karpenter
 
   annotations:
-    eks.amazonaws.com/role-arn: REPLACE_WITH_KARPENTER_CONTROLLER_ROLE_ARN
+    eks.amazonaws.com/role-arn: arn:aws:iam::283434716298:role/eks-v2-dev-karpenter-controller-role
 
 settings:
   clusterName: eks-v2-dev-cluster

@@ -2,7 +2,7 @@ clusterName: eks-v2-dev-cluster
 
 region: eu-west-2
 
-vpcId: REPLACE_AFTER_TERRAFORM_APPLY
+vpcId: vpc-0104ccb441649f51c
 
 replicaCount: 2
 
@@ -11,7 +11,7 @@ serviceAccount:
   name: aws-load-balancer-controller
 
   annotations:
-    eks.amazonaws.com/role-arn: REPLACE_AFTER_TERRAFORM_APPLY
+    eks.amazonaws.com/role-arn: arn:aws:iam::283434716298:role/eks-v2-dev-aws-load-balancer-controller-role
 
 resources:
   requests:

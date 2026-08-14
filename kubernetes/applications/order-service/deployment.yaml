@@ -50,7 +50,7 @@ spec:
                   key: DATABASE_URL
 
             - name: SQS_QUEUE_URL
-              value: REPLACE_AFTER_TERRAFORM_APPLY
+              value: https://sqs.eu-west-2.amazonaws.com/283434716298/eks-v2-dev-order-events
 
           readinessProbe:
             httpGet:

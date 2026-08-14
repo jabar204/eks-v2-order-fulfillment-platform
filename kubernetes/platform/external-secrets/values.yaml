@@ -7,7 +7,7 @@ serviceAccount:
   name: external-secrets
 
   annotations:
-    eks.amazonaws.com/role-arn: REPLACE_AFTER_TERRAFORM_APPLY
+    eks.amazonaws.com/role-arn: arn:aws:iam::283434716298:role/eks-v2-dev-external-secrets
 
 resources:
   requests:
