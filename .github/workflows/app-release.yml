@@ -140,13 +140,32 @@ jobs:
           echo "short_sha=${short_sha}" >> "$GITHUB_OUTPUT"
           echo "repository=${repo}" >> "$GITHUB_OUTPUT"
           echo "image=${image}" >> "$GITHUB_OUTPUT"
-          echo "Building ${image}"
+          echo "Target image ${image}"
+
+      # Immutable ECR tags: a rebuild of the same SHA produces a new digest and
+      # cannot overwrite :${short_sha}. Reuse the existing tag on re-runs.
+      - name: Check if image tag already exists
+        id: exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          if aws ecr describe-images \
+            --repository-name "${{ steps.meta.outputs.repository }}" \
+            --image-ids "imageTag=${{ steps.meta.outputs.short_sha }}" \
+            --region "${{ env.AWS_REGION }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag ${{ steps.meta.outputs.short_sha }} already exists; skipping build/push."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Build image
+        if: steps.exists.outputs.exists != 'true'
         working-directory: services/${{ matrix.service }}
         run: docker build -t "${{ steps.meta.outputs.image }}" -f Dockerfile .
 
       - name: Scan image with Trivy (hard gate)
+        if: steps.exists.outputs.exists != 'true'
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: "${{ steps.meta.outputs.image }}"
@@ -157,6 +176,7 @@ jobs:
           vuln-type: os,library
 
       - name: Push image
+        if: steps.exists.outputs.exists != 'true'
         run: docker push "${{ steps.meta.outputs.image }}"
 
       - name: Write image artifact
