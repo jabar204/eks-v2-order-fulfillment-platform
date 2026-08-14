@@ -47,7 +47,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version: "1.22"
+          go-version: "1.24.13"
           cache-dependency-path: services/${{ matrix.service }}/go.sum
 
       - name: Download dependencies
@@ -66,7 +66,7 @@ jobs:
         # v6 matches golangci-lint v1.x; v7+ requires golangci-lint v2
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.61.0
+          version: v1.64.8
           working-directory: services/${{ matrix.service }}
           args: --config=${{ github.workspace }}/.golangci.yml
 
