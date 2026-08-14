@@ -11,4 +11,5 @@ resources:
   - postgres
   - redis
   - external-secrets
-  - monitoring
+  # monitoring/alerts require Prometheus Operator CRDs — applied after
+  # kube-prometheus-stack Helm install (see platform/monitoring/README.md).

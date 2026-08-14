@@ -12,3 +12,9 @@ configMapGenerator:
 
 generatorOptions:
   disableNameSuffixHash: true
+  # ConfigMap must be a Sync hook like the Job, otherwise Argo applies the
+  # Job first and the pod cannot mount db-migrations.
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
