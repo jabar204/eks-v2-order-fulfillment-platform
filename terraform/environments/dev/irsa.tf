@@ -112,6 +112,18 @@ data "aws_iam_policy_document" "external_secrets" {
     actions   = ["secretsmanager:ListSecrets"]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "DecryptSecrets"
+    effect = "Allow"
+
+    actions = [
+      "kms:Decrypt",
+      "kms:DescribeKey",
+    ]
+
+    resources = [aws_kms_key.secrets.arn]
+  }
 }
 
 resource "aws_iam_policy" "external_secrets" {

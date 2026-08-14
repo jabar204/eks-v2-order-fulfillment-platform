@@ -1,0 +1,72 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: order-fulfillment
+  namespace: applications
+  labels:
+    app.kubernetes.io/part-of: order-fulfillment-platform
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: selfsigned-issuer
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - order.eks-v2.local
+      secretName: order-fulfillment-tls
+  rules:
+    - host: order.eks-v2.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dashboard-api
+                port:
+                  number: 8086
+---
+# Public hostname = Traefik NLB DNS (TLS via self-signed until real DNS is attached).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: order-fulfillment-nlb
+  namespace: applications
+  labels:
+    app.kubernetes.io/part-of: order-fulfillment-platform
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: selfsigned-issuer
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - k8s-traefik-traefik-7e30325e11-8f7a8ed51689be1b.elb.eu-west-2.amazonaws.com
+      secretName: order-fulfillment-nlb-tls
+  rules:
+    - host: k8s-traefik-traefik-7e30325e11-8f7a8ed51689be1b.elb.eu-west-2.amazonaws.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dashboard-api
+                port:
+                  number: 8086

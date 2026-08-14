@@ -11,5 +11,7 @@ resources:
   - postgres
   - redis
   - external-secrets
+  - cert-manager
   # monitoring/alerts require Prometheus Operator CRDs — applied after
   # kube-prometheus-stack Helm install (see platform/monitoring/README.md).
+  # karpenter NodePools require Karpenter CRDs — applied after Helm install.

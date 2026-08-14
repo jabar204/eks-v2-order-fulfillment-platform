@@ -27,10 +27,9 @@ spec:
 
   triggers:
     - type: aws-sqs-queue
-      authenticationRef:
-        name: keda-aws
       metadata:
         queueURL: https://sqs.eu-west-2.amazonaws.com/283434716298/eks-v2-dev-order-events
         queueLength: "5"
         awsRegion: eu-west-2
-        identityOwner: operator
+        # Use the worker Deployment ServiceAccount IRSA (trust is scoped to applications:worker).
+        identityOwner: pod

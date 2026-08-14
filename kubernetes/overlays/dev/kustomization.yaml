@@ -12,6 +12,7 @@ resources:
 - ../../applications/worker
 - ../../applications/scheduler
 - ../../applications/dashboard-api
+- ../../applications/ingress
 - ../../platform/keda
 - ../../platform/hardening
 
