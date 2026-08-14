@@ -2,56 +2,56 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - ../../applications/migrations
-  - ../../applications/api-gateway
-  - ../../applications/order-service
-  - ../../applications/inventory-service
-  - ../../applications/payment-service
-  - ../../applications/notification-service
-  - ../../applications/shipping-service
-  - ../../applications/worker
-  - ../../applications/scheduler
-  - ../../applications/dashboard-api
-  - ../../platform/keda
-  - ../../platform/hardening
+- ../../applications/migrations
+- ../../applications/api-gateway
+- ../../applications/order-service
+- ../../applications/inventory-service
+- ../../applications/payment-service
+- ../../applications/notification-service
+- ../../applications/shipping-service
+- ../../applications/worker
+- ../../applications/scheduler
+- ../../applications/dashboard-api
+- ../../platform/keda
+- ../../platform/hardening
 
 patches:
-  - path: topology-patches/api-gateway.yaml
-  - path: topology-patches/order-service.yaml
+- path: topology-patches/api-gateway.yaml
+- path: topology-patches/order-service.yaml
+
+
+
+
+
+
+
+
 
 images:
-  - name: REPLACE_WITH_ECR/api-gateway
-    newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-api-gateway
-    newTag: bootstrap
-
-  - name: REPLACE_WITH_ECR/order-service
-    newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-order-service
-    newTag: bootstrap
-
-  - name: REPLACE_WITH_ECR/inventory-service
-    newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-inventory-service
-    newTag: bootstrap
-
-  - name: REPLACE_WITH_ECR/payment-service
-    newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-payment-service
-    newTag: bootstrap
-
-  - name: REPLACE_WITH_ECR/notification-service
-    newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-notification-service
-    newTag: bootstrap
-
-  - name: REPLACE_WITH_ECR/shipping-service
-    newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-shipping-service
-    newTag: bootstrap
-
-  - name: REPLACE_WITH_ECR/worker
-    newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-worker
-    newTag: bootstrap
-
-  - name: REPLACE_WITH_ECR/scheduler
-    newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-scheduler
-    newTag: bootstrap
-
-  - name: REPLACE_WITH_ECR/dashboard-api
-    newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-dashboard-api
-    newTag: bootstrap
+- name: REPLACE_WITH_ECR/api-gateway
+  newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-api-gateway
+  newTag: 188340b
+- name: REPLACE_WITH_ECR/dashboard-api
+  newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-dashboard-api
+  newTag: 188340b
+- name: REPLACE_WITH_ECR/inventory-service
+  newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-inventory-service
+  newTag: 188340b
+- name: REPLACE_WITH_ECR/notification-service
+  newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-notification-service
+  newTag: 188340b
+- name: REPLACE_WITH_ECR/order-service
+  newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-order-service
+  newTag: 188340b
+- name: REPLACE_WITH_ECR/payment-service
+  newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-payment-service
+  newTag: 188340b
+- name: REPLACE_WITH_ECR/scheduler
+  newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-scheduler
+  newTag: 188340b
+- name: REPLACE_WITH_ECR/shipping-service
+  newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-shipping-service
+  newTag: 188340b
+- name: REPLACE_WITH_ECR/worker
+  newName: 283434716298.dkr.ecr.eu-west-2.amazonaws.com/eks-v2-dev-worker
+  newTag: 188340b
