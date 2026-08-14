@@ -165,9 +165,9 @@ OIDC trust is already scoped to this repo’s `main` ref and `environment:dev`.
 - [x] Kubernetes manifests (Kustomize)
 - [x] Argo CD App-of-Apps layout
 - [x] Separated GitHub Actions (infra CI, app CI, app release)
-- [ ] Working deployment — all services healthy, E2E order flow
-- [ ] Dashboard over HTTPS at a real DNS name
-- [ ] Persistence / snapshot restore / rollback / scaling demos documented with evidence
+- [x] Working deployment — all services healthy, E2E order flow
+- [x] Dashboard over HTTPS at Traefik NLB (self-signed TLS; attach real DNS for public CA)
+- [x] Persistence / snapshot restore / rollback / scaling demos documented with evidence
 
 ---
 

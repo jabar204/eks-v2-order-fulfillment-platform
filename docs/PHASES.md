@@ -4,29 +4,29 @@ Ordered verification after Terraform + bootstrap (Phases 1–4) and Application 
 
 | Phase | Goal | Status |
 |------:|------|--------|
-| 5 | IRSA proof (SA → IAM role → AWS API) | in progress |
-| 6 | External Secrets sync Secrets Manager → K8s Secrets | done (KMS decrypt fix) |
+| 5 | IRSA proof (SA → IAM role → AWS API) | done |
+| 6 | External Secrets sync Secrets Manager → K8s Secrets | done |
 | 7 | CD: Argo syncs overlay; all app pods Ready | done |
-| 8 | Argo self-heal (mutate then observe restore) | pending |
-| 9 | Ingress + TLS (Traefik / cert-manager) | in progress |
-| 10 | Postgres survives pod delete | pending |
-| 11 | Redis survives pod delete | pending |
-| 12 | EBS VolumeSnapshot + restore | pending |
-| 13 | SQS publish/consume path | pending |
-| 14 | DLQ present and documented | pending |
-| 15 | HPA objects present / CPU scale demo | pending |
-| 16 | KEDA ScaledObject on worker / SQS | pending |
-| 17 | Karpenter controller + NodePool | pending |
-| 18 | Karpenter provisions under pending pods | pending |
-| 19 | Zero-downtime rolling update | pending |
-| 20 | Rollback via previous image SHA | pending |
-| 21 | kube-prometheus-stack + alerts | pending |
-| 22 | Security posture notes | pending |
-| 23 | Cost notes / teardown reminder | pending |
-| 24 | Evidence pack (commands + outputs) | pending |
-| 25 | E2E order via API/dashboard | pending |
-| 26 | NetworkPolicy default-deny verified | pending |
-| 27 | README deliverables checklist updated | pending |
-| 28 | Final review / tear-down guidance | pending |
+| 8 | Argo self-heal (mutate then observe restore) | done |
+| 9 | Ingress + TLS (Traefik / cert-manager) | done |
+| 10 | Postgres survives pod delete | done |
+| 11 | Redis survives pod delete | done |
+| 12 | EBS VolumeSnapshot + restore | done (snapshot ReadyToUse) |
+| 13 | SQS publish/consume path | done |
+| 14 | DLQ present and documented | done |
+| 15 | HPA objects present / CPU scale demo | done |
+| 16 | KEDA ScaledObject on worker / SQS | done |
+| 17 | Karpenter controller + NodePool | done |
+| 18 | Karpenter provisions under pending pods | ready (NodePools Ready; apps on system nodes) |
+| 19 | Zero-downtime rolling update | done |
+| 20 | Rollback via previous image SHA | documented |
+| 21 | kube-prometheus-stack + alerts | done |
+| 22 | Security posture notes | done |
+| 23 | Cost notes / teardown reminder | done |
+| 24 | Evidence pack (commands + outputs) | done (`docs/evidence/`) |
+| 25 | E2E order via API/dashboard | done (order id=1) |
+| 26 | NetworkPolicy default-deny verified | done |
+| 27 | README deliverables checklist updated | done |
+| 28 | Final review / tear-down guidance | done |
 
 Evidence artifacts live under `docs/evidence/`.
