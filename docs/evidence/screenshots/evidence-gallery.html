@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html><head><meta charset='utf-8'><title>EKS Evidence Pack</title>
+<style>
+body{font-family:Segoe UI,Arial,sans-serif;background:#0b1220;color:#e8eefc;margin:0;padding:24px}
+h1{margin:0 0 8px} .meta{color:#9fb3d9;margin-bottom:24px}
+section{background:#121a2b;border:1px solid #243352;border-radius:12px;padding:16px 18px;margin:0 0 18px;page-break-inside:avoid}
+h2{margin:0 0 10px;font-size:18px;color:#7dd3fc}
+pre{white-space:pre-wrap;background:#0a0f1a;border-radius:8px;padding:12px;overflow:auto;font-size:12px;line-height:1.35}
+.badge{display:inline-block;background:#14532d;color:#bbf7d0;padding:2px 8px;border-radius:999px;font-size:12px}
+</style></head><body>
+<h1>eks-v2 Evidence Pack</h1>
+<div class='meta'>Captured 2026-08-14 11:42:27 · account 283434716298 · eu-west-2 · cluster eks-v2-dev-cluster</div>
+<section id='argo'><h2>01 Argo CD Applications <span class='badge'>Synced/Healthy</span></h2><pre>NAME                    SYNC STATUS   HEALTH STATUS   REVISION                                   PROJECT
+order-fulfillment-dev   Synced        Healthy         7d72fecd0f0e8e596d5a285875ba6a71917607b3   platform
+platform                Synced        Healthy         7d72fecd0f0e8e596d5a285875ba6a71917607b3   platform
+root                    Synced        Healthy         7d72fecd0f0e8e596d5a285875ba6a71917607b3   platform
+</pre></section>
+<section id='pods'><h2>02 Application Pods</h2><pre>NAME                                    READY   STATUS    RESTARTS   AGE   IP            NODE                                        NOMINATED NODE   READINESS GATES
+api-gateway-5d5c87bcbc-kzzzg            1/1     Running   0          23m   10.0.10.250   ip-10-0-10-229.eu-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+api-gateway-5d5c87bcbc-lsjf9            1/1     Running   0          23m   10.0.12.237   ip-10-0-12-129.eu-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+dashboard-api-799569fb79-bj5z9          1/1     Running   0          54m   10.0.11.204   ip-10-0-11-117.eu-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+dashboard-api-799569fb79-r2hw2          1/1     Running   0          54m   10.0.11.37    ip-10-0-11-89.eu-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+inventory-service-c84c786c8-8fq97       1/1     Running   0          54m   10.0.11.100   ip-10-0-11-117.eu-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+inventory-service-c84c786c8-gwjnj       1/1     Running   0          54m   10.0.11.86    ip-10-0-11-89.eu-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+notification-service-794749f5c7-fd4mq   1/1     Running   0          54m   10.0.11.19    ip-10-0-11-117.eu-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+notification-service-794749f5c7-xnl7k   1/1     Running   0          54m   10.0.11.22    ip-10-0-11-89.eu-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+order-service-78d594cd7d-b7ld5          1/1     Running   0          54m   10.0.11.41    ip-10-0-11-89.eu-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+order-service-78d594cd7d-d7lw7          1/1     Running   0          54m   10.0.11.152   ip-10-0-11-117.eu-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+payment-service-59b56d579f-7pwk7        1/1     Running   0          54m   10.0.11.214   ip-10-0-11-117.eu-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+payment-service-59b56d579f-gjcxs        1/1     Running   0          54m   10.0.11.210   ip-10-0-11-89.eu-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+scheduler-74cc54b865-m9rqm              1/1     Running   0          54m   10.0.11.165   ip-10-0-11-89.eu-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+shipping-service-b748c5cf-5949g         1/1     Running   0          54m   10.0.11.59    ip-10-0-11-117.eu-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+shipping-service-b748c5cf-fqnlr         1/1     Running   0          54m   10.0.11.6     ip-10-0-11-89.eu-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+worker-bdc5fc7c5-4ldpf                  1/1     Running   0          54m   10.0.11.53    ip-10-0-11-89.eu-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+</pre></section>
+<section id='deploy'><h2>03 Deployments</h2><pre>NAME                   READY   UP-TO-DATE   AVAILABLE   AGE
+api-gateway            2/2     2            2           54m
+dashboard-api          2/2     2            2           54m
+inventory-service      2/2     2            2           54m
+notification-service   2/2     2            2           54m
+order-service          2/2     2            2           54m
+payment-service        2/2     2            2           54m
+scheduler              1/1     1            1           54m
+shipping-service       2/2     2            2           54m
+worker                 1/1     1            1           54m
+</pre></section>
+<section id='irsa'><h2>04 IRSA ServiceAccounts</h2><pre>NAME                   ROLE
+api-gateway            &lt;none&gt;
+dashboard-api          &lt;none&gt;
+default                &lt;none&gt;
+inventory-service      &lt;none&gt;
+notification-service   arn:aws:iam::283434716298:role/eks-v2-dev-notification-service
+order-service          arn:aws:iam::283434716298:role/eks-v2-dev-order-service
+payment-service        &lt;none&gt;
+scheduler              &lt;none&gt;
+shipping-service       &lt;none&gt;
+worker                 arn:aws:iam::283434716298:role/eks-v2-dev-worker
+</pre></section>
+<section id='eso'><h2>05 External Secrets</h2><pre>NAME                   STORETYPE            STORE                 REFRESH INTERVAL   STATUS         READY   LAST SYNC
+api-gateway            ClusterSecretStore   aws-secrets-manager   1h                 SecretSynced   True    50m
+dashboard-api          ClusterSecretStore   aws-secrets-manager   1h                 SecretSynced   True    50m
+inventory-service      ClusterSecretStore   aws-secrets-manager   1h                 SecretSynced   True    50m
+notification-service   ClusterSecretStore   aws-secrets-manager   1h                 SecretSynced   True    50m
+order-service          ClusterSecretStore   aws-secrets-manager   1h                 SecretSynced   True    50m
+payment-service        ClusterSecretStore   aws-secrets-manager   1h                 SecretSynced   True    50m
+scheduler              ClusterSecretStore   aws-secrets-manager   1h                 SecretSynced   True    50m
+shipping-service       ClusterSecretStore   aws-secrets-manager   1h                 SecretSynced   True    50m
+</pre></section>
+<section id='ingress'><h2>06 Ingress + Certificates</h2><pre>NAME                                              CLASS     HOSTS                                                                         ADDRESS                                                                       PORTS     AGE
+ingress.networking.k8s.io/order-fulfillment       traefik   order.eks-v2.local                                                            k8s-traefik-traefik-7e30325e11-8f7a8ed51689be1b.elb.eu-west-2.amazonaws.com   80, 443   44m
+ingress.networking.k8s.io/order-fulfillment-nlb   traefik   k8s-traefik-traefik-7e30325e11-8f7a8ed51689be1b.elb.eu-west-2.amazonaws.com   k8s-traefik-traefik-7e30325e11-8f7a8ed51689be1b.elb.eu-west-2.amazonaws.com   80, 443   44m
+
+NAME                                                    READY   SECRET                      AGE
+certificate.cert-manager.io/order-fulfillment-nlb-tls   True    order-fulfillment-nlb-tls   44m
+certificate.cert-manager.io/order-fulfillment-tls       True    order-fulfillment-tls       44m
+</pre></section>
+<section id='persist'><h2>07 Persistence Proof</h2><pre>Postgres evidence_persist:
+1|phase10
+
+Redis evidence:phase11:
+survive
+
+Orders table:
+1|pending|0.00
+
+Data pods/PVCs:
+NAME             READY   STATUS    RESTARTS   AGE
+pod/postgres-0   1/1     Running   0          28m
+pod/redis-0      1/1     Running   0          27m
+
+NAME                                             STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/postgres-data-postgres-0   Bound    pvc-d381671b-f227-4053-afe1-3ca370fcab90   20Gi       RWO            gp3            &lt;unset&gt;                 11h
+persistentvolumeclaim/redis-data-redis-0         Bound    pvc-e0df561c-5972-4cd4-a82f-6c15ae76453a   10Gi       RWO            gp3            &lt;unset&gt;                 11h
+</pre></section>
+<section id='snapshot'><h2>08 VolumeSnapshot</h2><pre>NAME                 READYTOUSE   SOURCEPVC                  SOURCESNAPSHOTCONTENT   RESTORESIZE   SNAPSHOTCLASS        SNAPSHOTCONTENT                                    CREATIONTIME   AGE
+postgres-data-test   true         postgres-data-postgres-0                           20Gi          ebs-snapshot-class   snapcontent-6f135703-a98a-4044-892f-014f549655a0   23m            23m
+</pre></section>
+<section id='hpa'><h2>09 HPA</h2><pre>NAME                   REFERENCE                         TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+api-gateway            Deployment/api-gateway            cpu: 1%/70%   2         10        2          54m
+dashboard-api          Deployment/dashboard-api          cpu: 1%/70%   2         10        2          54m
+inventory-service      Deployment/inventory-service      cpu: 1%/70%   2         10        2          54m
+keda-hpa-worker        Deployment/worker                 0/5 (avg)     1         10        1          54m
+notification-service   Deployment/notification-service   cpu: 1%/70%   2         10        2          54m
+order-service          Deployment/order-service          cpu: 1%/70%   2         10        2          54m
+payment-service        Deployment/payment-service        cpu: 1%/70%   2         10        2          54m
+shipping-service       Deployment/shipping-service       cpu: 1%/70%   2         10        2          54m
+</pre></section>
+<section id='keda'><h2>10 KEDA</h2><pre>NAME                          SCALETARGETKIND      SCALETARGETNAME   MIN   MAX   READY   ACTIVE   FALLBACK   PAUSED   TRIGGERS        AUTHENTICATIONS   AGE
+scaledobject.keda.sh/worker   apps/v1.Deployment   worker            1     10    True    False    False      False    aws-sqs-queue   keda-aws          54m
+
+NAME                                     PODIDENTITY   SECRET   ENV   VAULTADDRESS
+triggerauthentication.keda.sh/keda-aws   aws                          
+</pre></section>
+<section id='karpenter'><h2>11 Karpenter + Nodes</h2><pre>NAME                            NODECLASS   NODES   READY   AGE
+nodepool.karpenter.sh/general   default     0       True    45m
+nodepool.karpenter.sh/spot      default     0       True    45m
+
+NAME                                     READY   AGE
+ec2nodeclass.karpenter.k8s.aws/default   True    45m
+
+NAME                         READY   STATUS    RESTARTS   AGE
+karpenter-795cc4986b-b4nfv   1/1     Running   0          47m
+karpenter-795cc4986b-wzxbq   1/1     Running   0          47m
+
+Nodes:
+NAME                                        STATUS   ROLES    AGE   VERSION               ROLE     NODEPOOL   WORKLOAD-TYPE
+ip-10-0-10-211.eu-west-2.compute.internal   Ready    &lt;none&gt;   12h   v1.35.6-eks-254016e   system              
+ip-10-0-10-229.eu-west-2.compute.internal   Ready    &lt;none&gt;   44m   v1.35.6-eks-254016e   system              
+ip-10-0-11-117.eu-west-2.compute.internal   Ready    &lt;none&gt;   11h   v1.35.6-eks-254016e   system              
+ip-10-0-11-89.eu-west-2.compute.internal    Ready    &lt;none&gt;   11h   v1.35.6-eks-254016e   system              
+ip-10-0-12-129.eu-west-2.compute.internal   Ready    &lt;none&gt;   44m   v1.35.6-eks-254016e   system              
+ip-10-0-12-55.eu-west-2.compute.internal    Ready    &lt;none&gt;   12h   v1.35.6-eks-254016e   system              
+</pre></section>
+<section id='monitoring'><h2>12 Monitoring Pods</h2><pre>NAME                                                     READY   STATUS    RESTARTS   AGE
+alertmanager-monitoring-kube-prometheus-alertmanager-0   2/2     Running   0          47m
+monitoring-grafana-686c8854f9-pnzqr                      3/3     Running   0          47m
+monitoring-kube-prometheus-operator-54754cf8cc-gn46n     1/1     Running   0          47m
+monitoring-kube-state-metrics-5687489cb5-ssl5n           1/1     Running   0          47m
+monitoring-prometheus-node-exporter-75pnf                1/1     Running   0          47m
+monitoring-prometheus-node-exporter-cdvz2                1/1     Running   0          45m
+monitoring-prometheus-node-exporter-cvw2r                1/1     Running   0          47m
+monitoring-prometheus-node-exporter-ljnqw                1/1     Running   0          47m
+monitoring-prometheus-node-exporter-nlqfp                1/1     Running   0          47m
+monitoring-prometheus-node-exporter-xcb8f                1/1     Running   0          44m
+prometheus-monitoring-kube-prometheus-prometheus-0       2/2     Running   0          47m
+</pre></section>
+<section id='netpol'><h2>13 NetworkPolicies</h2><pre>NAMESPACE      NAME                            POD-SELECTOR                                                                             AGE
+applications   api-gateway                     app=api-gateway                                                                          54m
+applications   dashboard-api                   app=dashboard-api                                                                        54m
+applications   default-deny-all                &lt;none&gt;                                                                                   11h
+applications   inventory-service               app=inventory-service                                                                    54m
+applications   notification-service            app=notification-service                                                                 54m
+applications   order-service                   app=order-service                                                                        54m
+applications   payment-service                 app=payment-service                                                                      54m
+applications   scheduler                       app=scheduler                                                                            54m
+applications   shipping-service                app=shipping-service                                                                     54m
+applications   worker                          app=worker                                                                               54m
+argocd         argocd-application-controller   app.kubernetes.io/instance=argocd,app.kubernetes.io/name=argocd-application-controller   11h
+argocd         argocd-redis                    app.kubernetes.io/instance=argocd,app.kubernetes.io/name=argocd-redis                    11h
+argocd         argocd-repo-server              app.kubernetes.io/instance=argocd,app.kubernetes.io/name=argocd-repo-server              11h
+argocd         argocd-server                   app.kubernetes.io/instance=argocd,app.kubernetes.io/name=argocd-server                   11h
+data           allow-db-migrate                app=db-migrate                                                                           11h
+data           allow-postgres                  app=postgres                                                                             11h
+data           allow-redis                     app=redis                                                                                11h
+data           default-deny-all                &lt;none&gt;                                                                                   11h
+</pre></section>
+</body></html>
