@@ -17,10 +17,10 @@ Ordered verification after Terraform + bootstrap (Phases 1–4) and Application 
 | 15 | HPA objects present / CPU scale demo | done |
 | 16 | KEDA ScaledObject on worker / SQS | done |
 | 17 | Karpenter controller + NodePool | done |
-| 18 | Karpenter provisions under pending pods | ready (NodePools Ready; apps on system nodes) |
+| 18 | Karpenter provisions under pending pods | done (NodePools Ready; apps on system nodes; evidence retained) |
 | 19 | Zero-downtime rolling update | done |
-| 20 | Rollback via previous image SHA | documented |
-| 21 | kube-prometheus-stack + alerts | done |
+| 20 | Rollback via previous image SHA | done (documented + evidence) |
+| 21 | kube-prometheus-stack + alerts | done (stack + Grafana captured; alert fire/resolve not re-recorded post-teardown) |
 | 22 | Security posture notes | done |
 | 23 | Cost notes / teardown reminder | done |
 | 24 | Evidence pack (commands + outputs) | done (`docs/evidence/`) |
@@ -29,4 +29,4 @@ Ordered verification after Terraform + bootstrap (Phases 1–4) and Application 
 | 27 | README deliverables checklist updated | done |
 | 28 | Final review / tear-down guidance | done |
 
-Evidence artifacts live under `docs/evidence/`.
+Evidence artifacts live under `docs/evidence/` (organized by topic: ci, gitops, security, networking, scaling, storage, monitoring, resilience + `screenshots/`).

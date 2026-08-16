@@ -163,7 +163,7 @@ data "aws_iam_policy_document" "app_sqs_assume" {
     condition {
       test     = "StringEquals"
       variable = "${local.eks_oidc_issuer_host}:sub"
-      values   = concat(
+      values = concat(
         ["system:serviceaccount:applications:${each.key}"],
         # KEDA operator reuses the worker role to read SQS depth.
         each.key == "worker" ? ["system:serviceaccount:keda:keda-operator"] : []

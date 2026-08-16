@@ -28,8 +28,8 @@ module "vpc" {
 
   # Dev needs one NAT so nodes can pull public images (public.ecr.aws, registry.k8s.io).
   # AWS APIs still prefer VPC endpoints; NAT is for third-party registries only.
-  enable_nat_gateway = true
-  single_nat_gateway = true
+  enable_nat_gateway     = true
+  single_nat_gateway     = true
   one_nat_gateway_per_az = false
 
   public_subnet_tags = {
